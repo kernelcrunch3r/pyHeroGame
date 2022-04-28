@@ -1,6 +1,6 @@
 import os
 import pygame
-import time
+import levelCreator
 
 pygame.display.init()
 
