@@ -23,12 +23,10 @@ class Note:
             self.y = 100
 
 
-
+redNote = Note("red")
 
 while True:
     for event in pygame.event.get():  # to exit
         if event.type == pygame.QUIT:
             pygame.quit()
             exit()
-
-    redNote = Note("red")
