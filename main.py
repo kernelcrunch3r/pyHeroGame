@@ -1,32 +1,75 @@
 import os
 import pygame
-import levelCreator
 
 pygame.display.init()
 
-WIN_WIDTH = 800
-WIN_HEIGHT = 600
-FPS = 30
+WIDTH, HEIGHT = 800, 600
+FPS = 60
 
-screen = pygame.display.set_mode((WIN_WIDTH, WIN_HEIGHT))
+WHITE = (255, 255, 255)
+
+screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("pyHero")  # window title
 
-RED_IMG = pygame.image.load(os.path.join("imgs", "red note.png"))
+
+# array of the note images (different colors, just select from array)
+note_imgs = [pygame.image.load(os.path.join("imgs", "green note.png")),
+             pygame.image.load(os.path.join("imgs", "red note.png")),
+             pygame.image.load(os.path.join("imgs", "yellow note.png")),
+             pygame.image.load(os.path.join("imgs", "blue note.png")),
+             pygame.image.load(os.path.join("imgs", "orange note.png"))]
 
 
 class Note:
-    image = RED_IMG
-
     def __init__(self, color):
-        if color == "red":
-            self.x = 150
-            self.y = 100
+        if color == "green":
+            self.x = WIDTH / 6
+            self.y = HEIGHT / 2
+            self.image = note_imgs[0]
+        elif color == "red":
+            self.x = WIDTH / 3
+            self.y = HEIGHT / 2
+            self.image = note_imgs[1]
+        elif color == "yellow":
+            self.x = WIDTH / 2
+            self.y = HEIGHT / 2
+            self.image = note_imgs[2]
+        elif color == "blue":
+            self.x = 2 * WIDTH / 3
+            self.y = HEIGHT / 2
+            self.image = note_imgs[3]
+        elif color == "orange":
+            self.x = 5 * WIDTH / 6
+            self.y = HEIGHT / 2
+            self.image = note_imgs[4]
 
 
-redNote = Note("red")
+notes = [Note("green"),
+         Note("red"),
+         Note("yellow"),
+         Note("blue"),
+         Note("orange")]
 
-while True:
-    for event in pygame.event.get():  # to exit
-        if event.type == pygame.QUIT:
-            pygame.quit()
-            exit()
+
+def draw_window():  # make a drawing function to easily display window
+    screen.fill(WHITE)
+    pygame.display.update()
+
+
+def main():
+    clock = pygame.time.Clock()
+
+    running = True
+    while running:  # game loop
+        clock.tick(FPS)
+
+        for event in pygame.event.get():  # to exit
+            if event.type == pygame.QUIT:
+                running = False
+
+        draw_window()
+
+    pygame.quit()
+
+
+main()
