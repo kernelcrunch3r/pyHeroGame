@@ -1,5 +1,6 @@
 import os
 import pygame
+import time
 
 pygame.display.init()
 
@@ -59,9 +60,14 @@ def draw_window():  # make a drawing function to easily display window
 def main():
     clock = pygame.time.Clock()
 
+    start_time = round(time.time() * 1000)
+
     running = True
     while running:  # game loop
         clock.tick(FPS)
+
+        elapsed = round(time.time() * 1000) - start_time
+        print(elapsed)
 
         for event in pygame.event.get():  # to exit
             if event.type == pygame.QUIT:
