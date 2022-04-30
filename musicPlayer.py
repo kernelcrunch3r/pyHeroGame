@@ -28,7 +28,7 @@ total = 0
 pos = 0
 while True:
     current_time = round(time.time() * 1000)
-    elapsed = current_time - start_time
+    elapsed = current_time - start_time  # get elapsed run time, in order to
     print(elapsed)
     if elapsed == notes[pos][1]:
         boom.play()

@@ -66,7 +66,7 @@ def main():
     while running:  # game loop
         clock.tick(FPS)
 
-        elapsed = round(time.time() * 1000) - start_time
+        elapsed = round(time.time() * 1000) - start_time  # elapsed run-time
         print(elapsed)
 
         for event in pygame.event.get():  # to exit
