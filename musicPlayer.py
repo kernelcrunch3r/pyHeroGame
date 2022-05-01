@@ -20,7 +20,7 @@ for note in n:
 notes.pop(len(notes) - 1)
 
 for i in range(len(notes)):
-    notes[i][1] = int(notes[i][1])
+    notes[i][1] = int(notes[i][1])  # the level creator has already rounded the time into an integer but in a string
 
 print(notes)
 
@@ -29,14 +29,15 @@ pos = 0
 while True:
     current_time = round(time.time() * 1000)
     elapsed = current_time - start_time  # get elapsed run time, in order to
-    print(elapsed)
-    if elapsed == notes[pos][1]:
+    if elapsed == notes[pos][1] or 0 <= notes[pos][1] - elapsed <= 5 or 0 <= elapsed - notes[pos][1] <= 5:
         boom.play()
-        pos += 1
+        print(elapsed)
+        pos += 1  # even if time is still within the range to trigger a sound, the position will have changed
         total += 1
-        if pos == len(notes):
-            break
 
     elif keyboard.is_pressed("q"):  # exit program
+        break
+    if pos == len(notes):
+        time.sleep(3)  # wait for last note to finish
         break
 print(total)
