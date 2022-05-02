@@ -2,7 +2,6 @@ import pygame
 import time
 import keyboard
 
-start_time = round(time.time() * 1000)
 pygame.mixer.init()
 boom = pygame.mixer.Sound("songs\\vine boom.mp3")
 
@@ -12,12 +11,14 @@ with open("song txts\\{}.txt".format(name)) as file:
     print(n)
     file.close()
 
+start_time = round(time.time() * 1000)
+
 notes = []
 for note in n:
     note = note.split()  # split each note into its own list of its symbol and the time pressed
     notes.append(note)  # add the 'mini' list to full notes list
 
-notes.pop(len(notes) - 1)
+notes.pop(len(notes) - 1)  # there is always a blank space at the end
 
 for i in range(len(notes)):
     notes[i][1] = int(notes[i][1])  # the level creator has already rounded the time into an integer but in a string

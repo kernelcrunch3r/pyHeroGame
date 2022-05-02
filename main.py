@@ -12,7 +12,6 @@ WHITE = (255, 255, 255)
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("pyHero")  # window title
 
-
 # array of the note images (different colors, just select from array)
 note_imgs = [pygame.image.load(os.path.join("imgs", "green note.png")),
              pygame.image.load(os.path.join("imgs", "red note.png")),
@@ -43,13 +42,6 @@ class Note:
             self.x = 5 * WIDTH / 6
             self.y = HEIGHT / 2
             self.image = note_imgs[4]
-
-
-notes = [Note("green"),
-         Note("red"),
-         Note("yellow"),
-         Note("blue"),
-         Note("orange")]
 
 
 def draw_window():  # make a drawing function to easily display window
