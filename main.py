@@ -44,8 +44,8 @@ class Note:
             self.image = note_imgs[4]
 
 
-def draw_window():  # make a drawing function to easily display window
-    screen.fill(WHITE)
+def song_select():  # make a drawing function to easily display window
+    screen.fill("blue")
     pygame.display.update()
 
 
@@ -65,7 +65,7 @@ def main():
             if event.type == pygame.QUIT:
                 running = False
 
-        draw_window()
+        song_select()
 
     pygame.quit()
 
