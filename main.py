@@ -3,15 +3,18 @@ import pygame
 import time
 
 pygame.display.init()
+pygame.mixer.init()
 
 WIDTH, HEIGHT = 800, 600
 FPS = 60
 
 WHITE = (255, 255, 255)
+BLUE = (0, 0, 255)
 
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("pyHero")  # window title
-
+pygame.mixer.music.load("songs/anesthesia.wav")
+pygame.mixer.music.play(-1)
 
 # array of the note images (different colors, just select from array)
 note_imgs = [pygame.image.load(os.path.join("imgs", "green note.png")),
@@ -45,33 +48,26 @@ class Note:
             self.image = note_imgs[4]
 
 
-notes = [Note("green"),
-         Note("red"),
-         Note("yellow"),
-         Note("blue"),
-         Note("orange")]
-
-
 def draw_window():  # make a drawing function to easily display window
-    screen.fill(WHITE)
+    screen.fill(BLUE)
     pygame.display.update()
 
 
 def main():
-    clock = pygame.time.Clock()
+    notes = []
 
+    clock = pygame.time.Clock()
     start_time = round(time.time() * 1000)
 
     running = True
     while running:  # game loop
         clock.tick(FPS)
-
-        elapsed = round(time.time() * 1000) - start_time  # elapsed run-time
-        print(elapsed)
-
         for event in pygame.event.get():  # to exit
             if event.type == pygame.QUIT:
                 running = False
+
+        elapsed = round(time.time() * 1000) - start_time  # elapsed run-time
+        print(elapsed)
 
         draw_window()
 

@@ -4,10 +4,10 @@ import keyboard
 
 start_time = round(time.time() * 1000)
 pygame.mixer.init()
-boom = pygame.mixer.Sound("songs\\vine boom.mp3")
+boom = pygame.mixer.Sound("songs/vine boom.mp3")
 
 name = input("What song to open: ")
-with open("song txts\\{}.txt".format(name)) as file:
+with open("song txts/{}.txt".format(name)) as file:  # open the input's file and put the lines into a list
     n = list(file.read().split("\n"))  # get each note and its time in an element of an array
     print(n)
     file.close()
