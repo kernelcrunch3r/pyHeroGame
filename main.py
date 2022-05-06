@@ -1,28 +1,7 @@
 import os
 import pygame
 import time
-
-
-# function used to open a created song txt file and transition all the lines into a list of lists
-# copied from musicPlayer.py
-def song_read(name):
-    with open("song txts/{}.txt".format(name)) as file:  # open the input's file and put the lines into a list
-        n = list(file.read().split("\n"))  # get each note and its time in an element of an array
-        print(n)
-        file.close()
-
-    notes = []
-    for note in n:
-        note = note.split()  # split each note into its own list of its symbol and the time pressed
-        notes.append(note)  # add the 'mini' list to full notes list
-
-    notes.pop(len(notes) - 1)  # there is always a blank space at the end
-
-    for i in range(len(notes)):
-        notes[i][1] = int(notes[i][1])  # the level creator has already rounded the time into an integer but in a string
-
-    print(notes)
-    return notes
+from musicPlayer import song_reader
 
 
 pygame.display.init()
@@ -38,6 +17,7 @@ VEL = 5
 WHITE = (255, 255, 255)
 BLUE = (0, 0, 255)
 GREY = (187, 187, 187)
+TEEL = (51, 245, 255)
 
 BASE_FONT = pygame.font.Font(None, 32)
 
@@ -58,26 +38,26 @@ class Note:
         self.VEL = 2
         if color == "green":
             self.x = WIDTH / 6
-            self.y = HEIGHT / 2
+            self.y = 0
             self.image = NOTE_IMGS[0]
         elif color == "red":
             self.x = WIDTH / 3
-            self.y = HEIGHT / 2
+            self.y = 0
             self.image = NOTE_IMGS[1]
         elif color == "yellow":
             self.x = WIDTH / 2
-            self.y = HEIGHT / 2
+            self.y = 0
             self.image = NOTE_IMGS[2]
         elif color == "blue":
             self.x = 2 * WIDTH / 3
-            self.y = HEIGHT / 2
+            self.y = 0
             self.image = NOTE_IMGS[3]
         elif color == "orange":
             self.x = 5 * WIDTH / 6
-            self.y = HEIGHT / 2
+            self.y = 0
             self.image = NOTE_IMGS[4]
 
-    def update(self):
+    def move(self):
         self.y += self.VEL
 
     def draw(self):
@@ -110,6 +90,7 @@ class InputBox:
         screen.blit(text_surface, (self.x1 + 10, (self.x2 - self.x1)/2))'''
 
 
+# Menu used to select a song.
 def song_menu():
     def draw_window(text):  # make a drawing function to easily display window, but specific to song-selecting
         screen.fill(BLUE)
@@ -147,37 +128,59 @@ song = song_menu()
 print(song)
 
 
+# Function containing the code for the main gameplay
 def game():
-    # use the created function
-    songNotes = song_read(song)
+    # use the imported function to read the selected song and put the notes and times into a list
+    songNotes = song_reader(song)
 
+    # local function used to draw the game window
     def draw_window(notes):
-        screen.fill("black")
+        screen.fill(TEEL)
 
         for note in notes:
-            note.draw()
+            note.draw()  # draw each
 
         pygame.display.update()
 
-    # set up the chosen song to play
-    pygame.mixer.music.load("songs/{}.wav".format(song))
-    pygame.mixer.music.play(-1)
     # get the game's start time
     startTime = round(time.time() * 1000)
 
-    notes = [Note("green")]
+    # list of the generated notes appearing
+    notes = []
 
+    pos = 0  # counter used to run through the .txt's songNotes list
     running = True
     while running:  # main game loop
         clock.tick(FPS)
 
-        elapsed = round(time.time() * 1000) - startTime  # elapsed run-time
         for event in pygame.event.get():  # to exit
             if event.type == pygame.QUIT:
                 running = False
 
+        elapsed = round(time.time() * 1000) - startTime  # elapsed run-time
+        # if the elasped time is the same (within milliseconds) as the .txt note elapsed time, generate a new note
+        if -20 <= songNotes[pos][1] - elapsed <= 20:
+            if pos == 0:
+                # set up the chosen song to play
+                pygame.mixer.music.load("songs/{}.wav".format(song))
+                pygame.mixer.music.play(-1)
+
+            if songNotes[pos][0] == "a":
+                notes.append(Note("green"))
+            elif songNotes[pos][0] == "f":
+                notes.append(Note("red"))
+            elif songNotes[pos][0] == "space":
+                notes.append(Note("yellow"))
+            elif songNotes[pos][0] == "j":
+                notes.append(Note("blue"))
+            elif songNotes[pos][0] == ";":
+                notes.append(Note("orange"))
+            pos += 1
+            if pos == len(songNotes):
+                running = False
+
         for note in notes:
-            note.update()
+            note.move()
 
         draw_window(notes)
 

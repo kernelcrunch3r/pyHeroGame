@@ -5,9 +5,10 @@ import os
 '''
 This file is to be used to create song txts in 
 '''
-startTime = time.time()  # get the starting time
 
 name = input("Song: ")  # get the song choice
+
+startTime = time.time()  # get the starting time
 
 print(startTime)
 
