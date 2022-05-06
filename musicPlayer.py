@@ -2,12 +2,9 @@ import pygame
 import time
 import keyboard
 
-pygame.mixer.init()
-boom = pygame.mixer.Sound("songs/vine boom.mp3")
-
 
 # function used to open a created song txt file and transition all the lines into a list of lists
-def song_read(name):
+def song_reader(name):
     with open("song txts/{}.txt".format(name)) as file:  # open the input's file and put the lines into a list
         n = list(file.read().split("\n"))  # get each note and its time in an element of an array
         print(n)
@@ -27,25 +24,30 @@ def song_read(name):
     return notes
 
 
-name = input("What song to open: ")
-notes = song_read(name)
+# only run the following code if this file is run (not if the file is imported)
+if __name__ == "musicPlayer.py":
+    pygame.mixer.init()
+    boom = pygame.mixer.Sound("songs/vine boom.mp3")
 
-startTime = round(time.time() * 1000)
+    name = input("What song to open: ")
+    notes = song_reader(name)
 
-total = 0
-pos = 0
-while True:
-    currentTime = round(time.time() * 1000)
-    elapsed = currentTime - startTime  # get elapsed run time, in order to
-    if elapsed == notes[pos][1] or 0 <= notes[pos][1] - elapsed <= 5 or 0 <= elapsed - notes[pos][1] <= 5:
-        boom.play()
-        print(elapsed)
-        pos += 1  # even if time is still within the range to trigger a sound, the position will have changed
-        total += 1
+    startTime = round(time.time() * 1000)
 
-    elif keyboard.is_pressed("q"):  # exit program
-        break
-    if pos == len(notes):
-        time.sleep(3)  # wait for last note to finish
-        break
-print(total)
+    total = 0
+    pos = 0
+    while True:
+        currentTime = round(time.time() * 1000)
+        elapsed = currentTime - startTime  # get elapsed run time, in order to
+        if elapsed == notes[pos][1] or 0 <= notes[pos][1] - elapsed <= 5 or 0 <= elapsed - notes[pos][1] <= 5:
+            boom.play()
+            print(elapsed)
+            pos += 1  # even if time is still within the range to trigger a sound, the position will have changed
+            total += 1
+
+        elif keyboard.is_pressed("q"):  # exit program
+            break
+        if pos == len(notes):
+            time.sleep(3)  # wait for last note to finish
+            break
+    print(total)
