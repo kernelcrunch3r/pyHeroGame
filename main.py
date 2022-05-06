@@ -143,7 +143,7 @@ def game():
         pygame.display.update()
 
     # get the game's start time
-    startTime = round(time.time() * 1000)
+    startTime = pygame.time.get_ticks()
 
     # list of the generated notes appearing
     notes = []
@@ -157,26 +157,31 @@ def game():
             if event.type == pygame.QUIT:
                 running = False
 
-        elapsed = round(time.time() * 1000) - startTime  # elapsed run-time
+        currentTime = pygame.time.get_ticks()
+        elapsed = currentTime - startTime  # elapsed run-time
         # if the elasped time is the same (within milliseconds) as the .txt note elapsed time, generate a new note
-        if -20 <= songNotes[pos][1] - elapsed <= 20:
-            if pos == 0:
-                # set up the chosen song to play
-                pygame.mixer.music.load("songs/{}.wav".format(song))
-                pygame.mixer.music.play(-1)
+        if pos != len(songNotes):  # pos would be out of index range if its the length, so make sure that doesn't happen
+            if elapsed >= songNotes[pos][1]:
+                if pos == 0:
+                    # set up the chosen song to play once the first note appears
+                    pygame.mixer.music.load("songs/{}.wav".format(song))
+                    pygame.mixer.music.play(-1)
 
-            if songNotes[pos][0] == "a":
-                notes.append(Note("green"))
-            elif songNotes[pos][0] == "f":
-                notes.append(Note("red"))
-            elif songNotes[pos][0] == "space":
-                notes.append(Note("yellow"))
-            elif songNotes[pos][0] == "j":
-                notes.append(Note("blue"))
-            elif songNotes[pos][0] == ";":
-                notes.append(Note("orange"))
-            pos += 1
-            if pos == len(songNotes):
+                if songNotes[pos][0] == "a":
+                    notes.append(Note("green"))
+                elif songNotes[pos][0] == "f":
+                    notes.append(Note("red"))
+                elif songNotes[pos][0] == "space":
+                    notes.append(Note("yellow"))
+                elif songNotes[pos][0] == "j":
+                    notes.append(Note("blue"))
+                elif songNotes[pos][0] == ";":
+                    notes.append(Note("orange"))
+                pos += 1
+                if pos == len(songNotes):
+                    startTime = currentTime  # make a timer to let note fall to finish game
+        else:
+            if currentTime - startTime >= 1500:  # wait 3 seconds after last note before quitting program
                 running = False
 
         for note in notes:

@@ -2,7 +2,6 @@ import pygame
 import time
 import keyboard
 
-
 # function used to open a created song txt file and transition all the lines into a list of lists
 def song_reader(name):
     with open("song txts/{}.txt".format(name)) as file:  # open the input's file and put the lines into a list
@@ -25,21 +24,23 @@ def song_reader(name):
 
 
 # only run the following code if this file is run (not if the file is imported)
-if __name__ == "musicPlayer.py":
+if __name__ == "__main__":
     pygame.mixer.init()
     boom = pygame.mixer.Sound("songs/vine boom.mp3")
 
     name = input("What song to open: ")
     notes = song_reader(name)
 
-    startTime = round(time.time() * 1000)
+    startTime = pygame.time.get_ticks()
+    clock = pygame.time.Clock()
 
     total = 0
     pos = 0
     while True:
-        currentTime = round(time.time() * 1000)
+        clock.tick(30)
+        currentTime = pygame.time.get_ticks()
         elapsed = currentTime - startTime  # get elapsed run time, in order to
-        if elapsed == notes[pos][1] or 0 <= notes[pos][1] - elapsed <= 5 or 0 <= elapsed - notes[pos][1] <= 5:
+        if elapsed >= notes[pos][1]:
             boom.play()
             print(elapsed)
             pos += 1  # even if time is still within the range to trigger a sound, the position will have changed

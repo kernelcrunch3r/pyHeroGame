@@ -1,6 +1,7 @@
 import time
 import keyboard
 import os
+import pygame
 
 '''
 This file is to be used to create song txts in 
@@ -8,7 +9,8 @@ This file is to be used to create song txts in
 
 name = input("Song: ")  # get the song choice
 
-startTime = time.time()  # get the starting time
+clock = pygame.time.Clock()
+startTime = pygame.time.get_ticks()  # get the starting time
 
 print(startTime)
 
@@ -16,7 +18,9 @@ level = open(os.path.join("song txts", "{}.txt".format(name)), "w")  # create a 
 
 wasPressed = False  # use to make sure no keys are held
 while True:
-    elapsed = round((time.time() - startTime) * 1000)
+    clock.tick(30)
+    currentTime = pygame.time.get_ticks()
+    elapsed = currentTime - startTime
     if keyboard.is_pressed("a"):
         if not wasPressed:  # only change file if the
             # write the pressed symbol and the elapsed program time
