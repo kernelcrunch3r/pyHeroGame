@@ -10,7 +10,7 @@ pygame.font.init()
 clock = pygame.time.Clock()
 
 WIDTH, HEIGHT = 800, 600
-FPS = 60
+FPS = 30
 
 VEL = 5
 
@@ -33,9 +33,10 @@ NOTE_IMGS = [pygame.image.load(os.path.join("imgs", "green note.png")),
              pygame.image.load(os.path.join("imgs", "orange note.png"))]
 
 
+# class used to spawn a note corresponding to the passed color
 class Note:
     def __init__(self, color):
-        self.VEL = 2
+        self.VEL = 5
         if color == "green":
             self.x = WIDTH / 6
             self.y = 0
@@ -62,32 +63,6 @@ class Note:
 
     def draw(self):
         screen.blit(self.image, (self.x, self.y))
-
-
-'''
-class InputBox:
-
-    def __init__(self, x1, y1, x2, y2):
-        self.color = WHITE
-        self.x1 = x1
-        self.x2 = x2
-        self.y1 = y1
-        self.y2 = y2
-        self.rect = pygame.Rect(x1, y1, x2, y2)
-
-    # function used to get the user's input
-    def user_input(self):
-        for event in pygame.event.get():
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_BACKSPACE:
-                    songSelection = songSelection[:-1]  # if backspace, remove last character
-                else:
-                    songSelection += event.unicode  # add the input onto the text string
-
-    def draw(self, screen):
-        pygame.draw.rect(screen, GREY, self.rect)
-        text_surface = BASE_FONT.render(songSelection, True, WHITE)
-        screen.blit(text_surface, (self.x1 + 10, (self.x2 - self.x1)/2))'''
 
 
 # Menu used to select a song.
@@ -163,10 +138,14 @@ def game():
         if pos != len(songNotes):  # pos would be out of index range if its the length, so make sure that doesn't happen
             if elapsed >= songNotes[pos][1]:
                 if pos == 0:
-                    # set up the chosen song to play once the first note appears
-                    pygame.mixer.music.load("songs/{}.wav".format(song))
+                    # the first timestamp decides when to start the song
+                    pygame.mixer.music.load("songs/{}.mp3".format(song))
                     pygame.mixer.music.play(-1)
 
+                if pos == len(songNotes) - 1:  # the last position will signal the end of the song, ending game
+                    running = False
+
+                # spawn a note corresponding to the "fret" pressed
                 if songNotes[pos][0] == "a":
                     notes.append(Note("green"))
                 elif songNotes[pos][0] == "f":
@@ -178,11 +157,6 @@ def game():
                 elif songNotes[pos][0] == ";":
                     notes.append(Note("orange"))
                 pos += 1
-                if pos == len(songNotes):
-                    startTime = currentTime  # make a timer to let note fall to finish game
-        else:
-            if currentTime - startTime >= 1500:  # wait 3 seconds after last note before quitting program
-                running = False
 
         for note in notes:
             note.move()
