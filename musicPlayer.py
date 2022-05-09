@@ -2,6 +2,7 @@ import pygame
 import time
 import keyboard
 
+
 # function used to open a created song txt file and transition all the lines into a list of lists
 def song_reader(name):
     with open("song txts/{}.txt".format(name)) as file:  # open the input's file and put the lines into a list

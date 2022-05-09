@@ -1,6 +1,5 @@
 import os
 import pygame
-import time
 from musicPlayer import song_reader
 
 
@@ -38,28 +37,71 @@ class Note:
     def __init__(self, color):
         self.VEL = 5
         if color == "green":
-            self.x = WIDTH / 6
+            self.x = round(WIDTH / 6)
             self.y = 0
             self.image = NOTE_IMGS[0]
         elif color == "red":
-            self.x = WIDTH / 3
+            self.x = round(WIDTH /3)
             self.y = 0
             self.image = NOTE_IMGS[1]
         elif color == "yellow":
-            self.x = WIDTH / 2
+            self.x = round(WIDTH / 2)
             self.y = 0
             self.image = NOTE_IMGS[2]
         elif color == "blue":
-            self.x = 2 * WIDTH / 3
+            self.x = round(2 * WIDTH / 3)
             self.y = 0
             self.image = NOTE_IMGS[3]
         elif color == "orange":
-            self.x = 5 * WIDTH / 6
+            self.x = round(5 * WIDTH / 6)
             self.y = 0
             self.image = NOTE_IMGS[4]
 
+        self.rect = self.image.get_rect()
+
     def move(self):
         self.y += self.VEL
+
+    def draw(self):
+        screen.blit(self.image, (self.x, self.y))
+        # screen.blit(self.rect, (self.x, self.y))
+
+
+CHECKER_IMGS = [pygame.image.load(os.path.join("imgs", "green checker.png")),
+                pygame.image.load(os.path.join("imgs", "red checker.png")),
+                pygame.image.load(os.path.join("imgs", "yellow checker.png")),
+                pygame.image.load(os.path.join("imgs", "blue checker.png")),
+                pygame.image.load(os.path.join("imgs", "orange checker.png"))]
+CHECKER_Y = HEIGHT - 50 - CHECKER_IMGS[0].get_height()
+
+
+# class for the image at the bottom of the screen used to "play" the note
+class NoteChecker:
+    def __init__(self, color):
+        if color == "green":
+            self.x = round(WIDTH / 6)
+            self.y = CHECKER_Y
+            self.image = CHECKER_IMGS[0]
+        elif color == "red":
+            self.x = round(WIDTH /3)
+            self.y = CHECKER_Y
+            self.image = CHECKER_IMGS[1]
+        elif color == "yellow":
+            self.x = round(WIDTH / 2)
+            self.y = CHECKER_Y
+            self.image = CHECKER_IMGS[2]
+        elif color == "blue":
+            self.x = round(2 * WIDTH / 3)
+            self.y = CHECKER_Y
+            self.image = CHECKER_IMGS[3]
+        elif color == "orange":
+            self.x = round(5 * WIDTH / 6)
+            self.y = CHECKER_Y
+            self.image = CHECKER_IMGS[4]
+        elif color == "test":
+            self.x = 0
+            self.y = 0
+            self.image = CHECKER_IMGS[0]
 
     def draw(self):
         screen.blit(self.image, (self.x, self.y))
@@ -108,10 +150,19 @@ def game():
     # use the imported function to read the selected song and put the notes and times into a list
     songNotes = song_reader(song)
 
-    # local function used to draw the game window
-    def draw_window(notes):
-        screen.fill(TEEL)
+    checkerNotes = [NoteChecker("green"),
+                    NoteChecker("red"),
+                    NoteChecker("yellow"),
+                    NoteChecker("blue"),
+                    NoteChecker("orange")]
 
+    # local function used to draw the game window
+    def draw_window(notes, checkers):
+        screen.fill(TEEL)
+        NoteChecker("test").draw()
+
+        for checker in checkers:
+            checker.draw()
         for note in notes:
             note.draw()  # draw each
 
@@ -124,6 +175,11 @@ def game():
     notes = []
 
     pos = 0  # counter used to run through the .txt's songNotes list
+    pressed1 = False
+    pressed2 = False
+    pressed3 = False
+    pressed4 = False
+    pressed5 = False
     running = True
     while running:  # main game loop
         clock.tick(FPS)
@@ -131,6 +187,27 @@ def game():
         for event in pygame.event.get():  # to exit
             if event.type == pygame.QUIT:
                 running = False
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_a:
+                    if not pressed1:
+                        print("a tapped")
+                        '''pressed1 = True'''
+                elif event.key == pygame.K_f:
+                    if not pressed2:
+                        print("f tapped")
+                        '''pressed2 = True'''
+                elif event.key == pygame.K_j:
+                    if not pressed3:
+                        print("j tapped")
+                        '''pressed3 = True'''
+                elif event.key == pygame.K_SEMICOLON:
+                    if not pressed4:
+                        print("; tapped")
+                        '''pressed4 = True'''
+                elif event.key == pygame.K_SPACE:
+                    if not pressed5:
+                        print("space tapped")
+                        '''pressed5 = True'''
 
         currentTime = pygame.time.get_ticks()
         elapsed = currentTime - startTime  # elapsed run-time
@@ -161,7 +238,7 @@ def game():
         for note in notes:
             note.move()
 
-        draw_window(notes)
+        draw_window(notes, checkerNotes)
 
 
 game()
