@@ -37,34 +37,36 @@ class Note:
     def __init__(self, color):
         self.VEL = 5
         if color == "green":
-            self.x = round(WIDTH / 6)
+            self.x = WIDTH / 6
             self.y = 0
             self.image = NOTE_IMGS[0]
         elif color == "red":
-            self.x = round(WIDTH /3)
+            self.x = WIDTH /3
             self.y = 0
             self.image = NOTE_IMGS[1]
         elif color == "yellow":
-            self.x = round(WIDTH / 2)
+            self.x = WIDTH / 2
             self.y = 0
             self.image = NOTE_IMGS[2]
         elif color == "blue":
-            self.x = round(2 * WIDTH / 3)
+            self.x = 2 * WIDTH / 3
             self.y = 0
             self.image = NOTE_IMGS[3]
         elif color == "orange":
-            self.x = round(5 * WIDTH / 6)
+            self.x = 5 * WIDTH / 6
             self.y = 0
             self.image = NOTE_IMGS[4]
-
-        self.rect = self.image.get_rect()
+        self.rect = self.image.get_rect(center=(self.x, self.y))
 
     def move(self):
-        self.y += self.VEL
+        self.rect.bottom += self.VEL
 
     def draw(self):
-        screen.blit(self.image, (self.x, self.y))
+        screen.blit(self.image, self.rect)
         # screen.blit(self.rect, (self.x, self.y))
+
+    def get_mask(self):  # call to get the note's mask used for collisions
+        return pygame.mask.from_surface(self.image)
 
 
 CHECKER_IMGS = [pygame.image.load(os.path.join("imgs", "green checker.png")),
@@ -83,7 +85,7 @@ class NoteChecker:
             self.y = CHECKER_Y
             self.image = CHECKER_IMGS[0]
         elif color == "red":
-            self.x = round(WIDTH /3)
+            self.x = round(WIDTH / 3)
             self.y = CHECKER_Y
             self.image = CHECKER_IMGS[1]
         elif color == "yellow":
@@ -102,9 +104,21 @@ class NoteChecker:
             self.x = 0
             self.y = 0
             self.image = CHECKER_IMGS[0]
+        self.rect = self.image.get_rect(center=(self.x,self.y))
 
     def draw(self):
-        screen.blit(self.image, (self.x, self.y))
+        screen.blit(self.image, self.rect)
+
+    def collide_check(self, note):
+        # use masks for pixel-perfect collision checking
+        noteMask = note.get_mask()
+        noteRect = note.rect
+        checkerMask = pygame.mask.from_surface(self.image)
+        offset = (self.x - note.x, self.y - note.y)
+
+        if noteRect.colliderect(self.rect):
+            if noteMask.overlap(checkerMask, offset):
+                return True
 
 
 # Menu used to select a song.
@@ -163,6 +177,8 @@ def game():
 
         for checker in checkers:
             checker.draw()
+            if len(notes) > 0 and checker.collide_check(notes[0]):
+                notes.pop(0)
         for note in notes:
             note.draw()  # draw each
 
@@ -172,7 +188,7 @@ def game():
     startTime = pygame.time.get_ticks()
 
     # list of the generated notes appearing
-    notes = []
+    allNotes = []
 
     pos = 0  # counter used to run through the .txt's songNotes list
     pressed1 = False
@@ -224,21 +240,21 @@ def game():
 
                 # spawn a note corresponding to the "fret" pressed
                 if songNotes[pos][0] == "a":
-                    notes.append(Note("green"))
+                    allNotes.append(Note("green"))
                 elif songNotes[pos][0] == "f":
-                    notes.append(Note("red"))
+                    allNotes.append(Note("red"))
                 elif songNotes[pos][0] == "space":
-                    notes.append(Note("yellow"))
+                    allNotes.append(Note("yellow"))
                 elif songNotes[pos][0] == "j":
-                    notes.append(Note("blue"))
+                    allNotes.append(Note("blue"))
                 elif songNotes[pos][0] == ";":
-                    notes.append(Note("orange"))
+                    allNotes.append(Note("orange"))
                 pos += 1
 
-        for note in notes:
+        for note in allNotes:
             note.move()
 
-        draw_window(notes, checkerNotes)
+        draw_window(allNotes, checkerNotes)
 
 
 game()
