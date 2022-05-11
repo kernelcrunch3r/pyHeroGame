@@ -26,19 +26,19 @@ pygame.display.set_caption("pyHero")  # window title
 
 
 # array of the note images (different colors, just select from array)
-NOTE_IMGS = [pygame.image.load(os.path.join("imgs", "green note.png")),
-             pygame.image.load(os.path.join("imgs", "red note.png")),
-             pygame.image.load(os.path.join("imgs", "yellow note.png")),
-             pygame.image.load(os.path.join("imgs", "blue note.png")),
-             pygame.image.load(os.path.join("imgs", "orange note.png"))]
+NOTE_IMGS = [pygame.image.load(os.path.join("imgs", "green note1.png")),
+             pygame.image.load(os.path.join("imgs", "red note1.png")),
+             pygame.image.load(os.path.join("imgs", "yellow note1.png")),
+             pygame.image.load(os.path.join("imgs", "blue note1.png")),
+             pygame.image.load(os.path.join("imgs", "orange note1.png"))]
 
 
 # class used to spawn a note corresponding to the passed color
 class Note:
-    def __init__(self, color, checkerHeight):
+    def __init__(self, color):
         self.VEL = 7.5
         self.color = color
-        self.fallTime = (100*checkerHeight) / (3 * self.VEL)
+
         if color == "green":
             self.x = WIDTH / 6
             self.y = 0
@@ -61,6 +61,9 @@ class Note:
             self.image = NOTE_IMGS[4]
         self.rect = self.image.get_rect(center=(self.x, self.y))
 
+    def get_fall_time(self, checkerHeight):
+        return (100 * checkerHeight) / (3 * self.VEL)
+
     def move(self):
         self.rect.bottom += self.VEL
 
@@ -69,11 +72,11 @@ class Note:
         # screen.blit(self.rect, (self.x, self.y))
 
 
-CHECKER_IMGS = [pygame.image.load(os.path.join("imgs", "green checker.png")),
-                pygame.image.load(os.path.join("imgs", "red checker.png")),
-                pygame.image.load(os.path.join("imgs", "yellow checker.png")),
-                pygame.image.load(os.path.join("imgs", "blue checker.png")),
-                pygame.image.load(os.path.join("imgs", "orange checker.png"))]
+CHECKER_IMGS = [pygame.image.load(os.path.join("imgs", "green checker1.png")),
+                pygame.image.load(os.path.join("imgs", "red checker1.png")),
+                pygame.image.load(os.path.join("imgs", "yellow checker1.png")),
+                pygame.image.load(os.path.join("imgs", "blue checker1.png")),
+                pygame.image.load(os.path.join("imgs", "orange checker1.png"))]
 CHECKER_Y = HEIGHT - 50 - CHECKER_IMGS[0].get_height()
 
 
@@ -165,7 +168,6 @@ def game():
                     NoteChecker("blue"),
                     NoteChecker("orange")]
     checkHeight = checkerNotes[0].y
-    print(checkHeight)
 
     # local function used to draw the game window
     def draw_window(notes, checkers):
@@ -186,6 +188,7 @@ def game():
     # list of the generated notes appearing
     allNotes = []
 
+    playing = False
     pos = 0  # counter used to run through the .txt's songNotes list
     running = True
     while running:  # main game loop
@@ -193,32 +196,33 @@ def game():
 
         currentTime = pygame.time.get_ticks()
         elapsed = currentTime - startTime  # elapsed run-time
-        print(elapsed, songNotes[pos][1] - Note("green", checkHeight).fallTime)
-        # if the elasped time is the same (within milliseconds) as the .txt note elapsed time, generate a new note
-        if pos != len(songNotes):  # pos would be out of index range if its the length, so make sure that doesn't happen
-            if elapsed >= (songNotes[pos][1] - Note("green", checkHeight).fallTime):
-                if pos == 0:
-                    # the first timestamp decides when to start the song
-                    pygame.mixer.music.load("songs/{}.mp3".format(song))
-                    pygame.mixer.music.play(-1)
 
-                if pos == len(songNotes) - 1:  # the last position will signal the end of the song, ending game
-                    running = False
+        # play the music when the first "log" in the file is passed
+        if elapsed >= songNotes[0][1] and not playing:
+            # the first timestamp decides when to start the song
+            pygame.mixer.music.load("songs/{}.mp3".format(song))
+            pygame.mixer.music.play(-1)
+            playing = True
 
-                # spawn a note corresponding to the "fret" pressed
-                if songNotes[pos][0] == "a":
-                    allNotes.append(Note("green", checkHeight))
-                elif songNotes[pos][0] == "f":
-                    allNotes.append(Note("red", checkHeight))
-                elif songNotes[pos][0] == "space":
-                    allNotes.append(Note("yellow", checkHeight))
-                elif songNotes[pos][0] == "j":
-                    allNotes.append(Note("blue", checkHeight))
-                elif songNotes[pos][0] == ";":
-                    allNotes.append(Note("orange", checkHeight))
-                pos += 1
+        # spawn a note in time to hit the checker at the right time
+        if elapsed >= songNotes[pos][1] - Note("green").get_fall_time(checkHeight):
+            if pos == len(songNotes) - 1:  # the last position will signal the end of the song, ending game
+                running = False
 
-        for event in pygame.event.get():  # to exita
+            # spawn a note corresponding to the "fret" pressed
+            if songNotes[pos][0] == "a":
+                allNotes.append(Note("green"))
+            elif songNotes[pos][0] == "f":
+                allNotes.append(Note("red"))
+            elif songNotes[pos][0] == "space":
+                allNotes.append(Note("yellow"))
+            elif songNotes[pos][0] == "j":
+                allNotes.append(Note("blue"))
+            elif songNotes[pos][0] == ";":
+                allNotes.append(Note("orange"))
+            pos += 1
+
+        for event in pygame.event.get():  # to exit
             if event.type == pygame.QUIT:
                 running = False
             elif event.type == pygame.KEYDOWN:
