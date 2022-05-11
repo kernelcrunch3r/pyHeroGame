@@ -1,11 +1,9 @@
 import os
 import pygame
 from musicPlayer import song_reader
-import random
 
-
-pygame.display.init()
 pygame.mixer.init()
+pygame.display.init()
 pygame.font.init()
 clock = pygame.time.Clock()
 
@@ -17,7 +15,7 @@ VEL = 5
 WHITE = (255, 255, 255)
 BLUE = (0, 0, 255)
 GREY = (187, 187, 187)
-TEEL = [51, 245, 255]
+TEEL = (51, 245, 255)
 
 BASE_FONT = pygame.font.Font(None, 32)
 
@@ -44,7 +42,7 @@ class Note:
             self.y = 0
             self.image = NOTE_IMGS[0]
         elif color == "red":
-            self.x = WIDTH /3
+            self.x = WIDTH / 3
             self.y = 0
             self.image = NOTE_IMGS[1]
         elif color == "yellow":
@@ -62,7 +60,7 @@ class Note:
         self.rect = self.image.get_rect(center=(self.x, self.y))
 
     def get_fall_time(self, checkerHeight):
-        return (100 * checkerHeight) / (3 * self.VEL)
+        return (1000 * checkerHeight) / (FPS * self.VEL)
 
     def move(self):
         self.rect.bottom += self.VEL
@@ -107,7 +105,7 @@ class NoteChecker:
             self.x = 0
             self.y = 0
             self.image = CHECKER_IMGS[0]
-        self.rect = self.image.get_rect(center=(self.x,self.y))
+        self.rect = self.image.get_rect(center=(self.x, self.y))
 
     def draw(self):
         screen.blit(self.image, self.rect)
@@ -152,7 +150,8 @@ def song_menu():
         draw_window(textSurface)
 
 
-song = song_menu()
+# song = song_menu()
+song = "smoke on the water real"
 
 print(song)
 
@@ -188,7 +187,8 @@ def game():
     # list of the generated notes appearing
     allNotes = []
 
-    playing = False
+    hits = 0  # counter for notes hit at the right time
+    musicPlaying = False  # music player boolean
     pos = 0  # counter used to run through the .txt's songNotes list
     running = True
     while running:  # main game loop
@@ -198,16 +198,19 @@ def game():
         elapsed = currentTime - startTime  # elapsed run-time
 
         # play the music when the first "log" in the file is passed
-        if elapsed >= songNotes[0][1] and not playing:
+        if elapsed >= songNotes[0][1] and not musicPlaying:
             # the first timestamp decides when to start the song
             pygame.mixer.music.load("songs/{}.mp3".format(song))
             pygame.mixer.music.play(-1)
-            playing = True
+            musicPlaying = True
 
-        # spawn a note in time to hit the checker at the right time
-        if elapsed >= songNotes[pos][1] - Note("green").get_fall_time(checkHeight):
-            if pos == len(songNotes) - 1:  # the last position will signal the end of the song, ending game
+        if pos == len(songNotes):  # pos would be out of index, and all notes would be completed
+            if elapsed >= songNotes[-1][1]:  # end at the last "log" in the txt file
                 running = False
+        # spawn a note in time to hit the checker at the right time
+        elif elapsed >= songNotes[pos][1] - Note("green").get_fall_time(checkHeight):
+            '''if pos == len(songNotes) - 1:  # the last position will signal the end of the song, ending game
+                running = False'''
 
             # spawn a note corresponding to the "fret" pressed
             if songNotes[pos][0] == "a":
@@ -225,54 +228,63 @@ def game():
         for event in pygame.event.get():  # to exit
             if event.type == pygame.QUIT:
                 running = False
+            # get the input that happens and check if it's at the right time to 'hit' a note
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_a:
                     print("a tapped")
                     # check if first note matching corresponding key
                     if len(allNotes) > 0 and allNotes[0].color == "green":
                         # check if the first note is colliding with the corresponding checker
-                        if len(allNotes) > 0 and checkerNotes[0].collide_check(allNotes[0]):
+                        if checkerNotes[0].collide_check(allNotes[0]):
+                            hits += 1
+                            allNotes.pop(0)  # remove the first note if pressed at right time
+
+                elif event.key == pygame.K_s:
+                    print("s tapped")
+                    # check if first note matching corresponding key
+                    if len(allNotes) > 0 and allNotes[0].color == "red":
+                        # check if the first note is colliding with the corresponding checker when button pressed
+                        if checkerNotes[1].collide_check(allNotes[0]):
+                            hits += 1
+                            allNotes.pop(0)  # remove the first note if pressed at right time
+
+                elif event.key == pygame.K_d:
+                    print("d tapped")
+                    # check if first note matching corresponding key
+                    if len(allNotes) > 0 and allNotes[0].color == "yellow":
+                        # check if the first note is colliding with the corresponding checker
+                        if checkerNotes[2].collide_check(allNotes[0]):
+                            hits += 1
                             allNotes.pop(0)  # remove the first note if pressed at right time
 
                 elif event.key == pygame.K_f:
                     print("f tapped")
                     # check if first note matching corresponding key
-                    if len(allNotes) > 0 and allNotes[0].color == "red":
+                    if len(allNotes) > 0 and allNotes[0].color == "blue":
                         # check if the first note is colliding with the corresponding checker
-                        if len(allNotes) > 0 and checkerNotes[1].collide_check(allNotes[0]):
+                        if checkerNotes[3].collide_check(allNotes[0]):
+                            hits += 1
                             allNotes.pop(0)  # remove the first note if pressed at right time
 
                 elif event.key == pygame.K_SPACE:
                     print("space tapped")
                     # check if first note matching corresponding key
-                    if len(allNotes) > 0 and allNotes[0].color == "yellow":
+                    if len(allNotes) > 0 and allNotes[0].color == "orange":
                         # check if the first note is colliding with the corresponding checker
-                        if len(allNotes) > 0 and checkerNotes[2].collide_check(allNotes[0]):
+                        if checkerNotes[4].collide_check(allNotes[0]):
+                            hits += 1
                             allNotes.pop(0)  # remove the first note if pressed at right time
-
-                elif event.key == pygame.K_j:
-                    print("j tapped")
-                    # check if first note matching corresponding key
-                    if len(allNotes) > 0 and allNotes[0].color == "blue":
-                        # check if the first note is colliding with the corresponding checker
-                        if len(allNotes) > 0 and checkerNotes[3].collide_check(allNotes[0]):
-                            allNotes.pop(0)  # remove the first note if pressed at right time
-
-                elif event.key == pygame.K_SEMICOLON:
-                    print("; tapped")
-                    # check if first note matching corresponding key
-                    if allNotes[0].color == "orange":
-                        # check if the first note is colliding with the corresponding checker
-                        if len(allNotes) > 0 and checkerNotes[4].collide_check(allNotes[0]):
-                            allNotes.pop(0)  # remove the first note if pressed at right time
+            print(hits)
 
         for note in allNotes:
             note.move()
 
+        # remove the first fallen note if it passes the checker's hitbox
         if len(allNotes) > 0 and allNotes[0].rect.top > checkerNotes[0].rect.bottom:
             allNotes.pop(0)
 
         draw_window(allNotes, checkerNotes)
+        pygame.display.set_caption("{}".format(clock.get_fps()))
 
 
 game()
