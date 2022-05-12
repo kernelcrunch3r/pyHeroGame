@@ -150,8 +150,8 @@ def song_menu():
         draw_window(textSurface)
 
 
-# song = song_menu()
-song = "smoke on the water real"
+song = song_menu()
+# song = "smoke on the water real"
 
 print(song)
 
@@ -187,6 +187,12 @@ def game():
     # list of the generated notes appearing
     allNotes = []
 
+    pressed1 = False
+    pressed2 = False
+    pressed3 = False
+    pressed4 = False
+    pressed5 = False
+
     hits = 0  # counter for notes hit at the right time
     musicPlaying = False  # music player boolean
     pos = 0  # counter used to run through the .txt's songNotes list
@@ -200,8 +206,8 @@ def game():
         # play the music when the first "log" in the file is passed
         if elapsed >= songNotes[0][1] and not musicPlaying:
             # the first timestamp decides when to start the song
-            pygame.mixer.music.load("songs/{}.mp3".format(song))
-            pygame.mixer.music.play(-1)
+            '''pygame.mixer.music.load("songs/{}.mp3".format(song))
+            pygame.mixer.music.play(-1)'''
             musicPlaying = True
 
         if pos == len(songNotes):  # pos would be out of index, and all notes would be completed
@@ -225,56 +231,141 @@ def game():
                 allNotes.append(Note("orange"))
             pos += 1
 
-        for event in pygame.event.get():  # to exit
+        '''# get the state of pressed keys
+        keys = pygame.key.get_pressed()
+        if keys[pygame.K_a] and not pressed1:
+            print("a tapped")
+            pressed1 = True  # set the key as pressed so that it can't be held
+            # check if first note matching corresponding key
+            if len(allNotes) > 0 and allNotes[0].color == "green":
+                # check if the first note is colliding with the corresponding checker
+                if checkerNotes[0].collide_check(allNotes[0]):
+                    hits += 1
+                    allNotes.pop(0)  # remove the first note if pressed at right time
+        elif not keys[pygame.K_a] and pressed1:
+            pressed1 = False
+
+        if keys[pygame.K_s] and not pressed2:
+            print("s tapped")
+            pressed2 = True
+            # check if first note matching corresponding key
+            if len(allNotes) > 0 and allNotes[0].color == "red":
+                # check if the first note is colliding with the corresponding checker
+                if checkerNotes[0].collide_check(allNotes[0]):
+                    hits += 1
+                    allNotes.pop(0)  # remove the first note if pressed at right time
+        elif not keys[pygame.K_s] and pressed2:
+            pressed2 = False
+
+        if keys[pygame.K_d] and not pressed3:
+            print("d tapped")
+            pressed3 = True
+            # check if first note matching corresponding key
+            if len(allNotes) > 0 and allNotes[0].color == "yellow":
+                # check if the first note is colliding with the corresponding checker
+                if checkerNotes[0].collide_check(allNotes[0]):
+                    hits += 1
+                    allNotes.pop(0)  # remove the first note if pressed at right time
+        elif not keys[pygame.K_d] and pressed3:
+            pressed3 = False
+
+        if keys[pygame.K_f] and not pressed4:
+            print("f tapped")
+            pressed4 = True
+            # check if first note matching corresponding key
+            if len(allNotes) > 0 and allNotes[0].color == "blue":
+                # check if the first note is colliding with the corresponding checker
+                if checkerNotes[0].collide_check(allNotes[0]):
+                    hits += 1
+                    allNotes.pop(0)  # remove the first note if pressed at right time
+        elif not keys[pygame.K_f] and pressed4:
+            pressed4 = False
+
+        if keys[pygame.K_SPACE] and not pressed5:
+            print("space tapped")
+            pressed5 = True
+            # check if first note matching corresponding key
+            if len(allNotes) > 0 and allNotes[0].color == "orange":
+                # check if the first note is colliding with the corresponding checker
+                if checkerNotes[0].collide_check(allNotes[0]):
+                    hits += 1
+                    allNotes.pop(0)  # remove the first note if pressed at right time
+        elif not keys[pygame.K_SPACE] and pressed5:
+            pressed5 = False'''
+
+        for event in pygame.event.get():  # to exits
             if event.type == pygame.QUIT:
                 running = False
+
             # get the input that happens and check if it's at the right time to 'hit' a note
-            elif event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_a:
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_a and not pressed1:
                     print("a tapped")
-                    # check if first note matching corresponding key
-                    if len(allNotes) > 0 and allNotes[0].color == "green":
-                        # check if the first note is colliding with the corresponding checker
-                        if checkerNotes[0].collide_check(allNotes[0]):
-                            hits += 1
-                            allNotes.pop(0)  # remove the first note if pressed at right time
+                    pressed1 = True
+                    # check if a note is colliding with the corresponding key pressed
+                    for i in range(4):  # run for the first 5 notes because of chords
+                        if len(allNotes) > 0 and allNotes[i].color == "green":  # only run if notes are onscreen
+                            # check if the first note is colliding with the corresponding checker
+                            if checkerNotes[0].collide_check(allNotes[i]):
+                                hits += 1
+                                allNotes.pop(i)  # remove the first note if pressed at right time
 
-                elif event.key == pygame.K_s:
+                if event.key == pygame.K_s and not pressed2:
                     print("s tapped")
-                    # check if first note matching corresponding key
-                    if len(allNotes) > 0 and allNotes[0].color == "red":
-                        # check if the first note is colliding with the corresponding checker when button pressed
-                        if checkerNotes[1].collide_check(allNotes[0]):
-                            hits += 1
-                            allNotes.pop(0)  # remove the first note if pressed at right time
+                    pressed2 = True
+                    # check if a note is colliding with the corresponding key pressed
+                    for i in range(4):  # run for the first 5 notes because of chords
+                        if len(allNotes) > 0 and allNotes[i].color == "red":  # only run if notes are onscreen
+                            # check if the first note is colliding with the corresponding checker
+                            if checkerNotes[0].collide_check(allNotes[i]):
+                                hits += 1
+                                allNotes.pop(i)  # remove the first note if pressed at right time
 
-                elif event.key == pygame.K_d:
+                if event.key == pygame.K_d and not pressed3:
                     print("d tapped")
-                    # check if first note matching corresponding key
-                    if len(allNotes) > 0 and allNotes[0].color == "yellow":
-                        # check if the first note is colliding with the corresponding checker
-                        if checkerNotes[2].collide_check(allNotes[0]):
-                            hits += 1
-                            allNotes.pop(0)  # remove the first note if pressed at right time
+                    pressed3 = True
+                    # check if a note is colliding with the corresponding key pressed
+                    for i in range(4):  # run for the first 5 notes because of chords
+                        if len(allNotes) > 0 and allNotes[i].color == "yellow":  # only run if notes are onscreen
+                            # check if the first note is colliding with the corresponding checker
+                            if checkerNotes[0].collide_check(allNotes[i]):
+                                hits += 1
+                                allNotes.pop(i)  # remove the first note if pressed at right time
 
-                elif event.key == pygame.K_f:
+                if event.key == pygame.K_a and not pressed4:
                     print("f tapped")
-                    # check if first note matching corresponding key
-                    if len(allNotes) > 0 and allNotes[0].color == "blue":
-                        # check if the first note is colliding with the corresponding checker
-                        if checkerNotes[3].collide_check(allNotes[0]):
-                            hits += 1
-                            allNotes.pop(0)  # remove the first note if pressed at right time
+                    pressed4 = True
+                    # check if a note is colliding with the corresponding key pressed
+                    for i in range(4):  # run for the first 5 notes because of chords
+                        if len(allNotes) > 0 and allNotes[i].color == "blue":  # only run if notes are onscreen
+                            # check if the first note is colliding with the corresponding checker
+                            if checkerNotes[0].collide_check(allNotes[i]):
+                                hits += 1
+                                allNotes.pop(i)  # remove the first note if pressed at right time
 
-                elif event.key == pygame.K_SPACE:
+                if event.key == pygame.K_SPACE and not pressed5:
                     print("space tapped")
-                    # check if first note matching corresponding key
-                    if len(allNotes) > 0 and allNotes[0].color == "orange":
-                        # check if the first note is colliding with the corresponding checker
-                        if checkerNotes[4].collide_check(allNotes[0]):
-                            hits += 1
-                            allNotes.pop(0)  # remove the first note if pressed at right time
-            print(hits)
+                    pressed5 = True
+                    # check if a note is colliding with the corresponding key pressed
+                    for i in range(4):  # run for the first 5 notes because of chords
+                        if len(allNotes) > 0 and allNotes[i].color == "orange":  # only run if notes are onscreen
+                            # check if the first note is colliding with the corresponding checker
+                            if checkerNotes[0].collide_check(allNotes[i]):
+                                hits += 1
+                                allNotes.pop(i)  # remove the first note if pressed at right time
+                print(hits)
+
+            elif event.type == pygame.KEYUP:
+                if event.key == pygame.K_a:
+                    pressed1 = False
+                elif event.key == pygame.K_s:
+                    pressed2 = False
+                if event.key == pygame.K_d:
+                    pressed3 = False
+                elif event.key == pygame.K_f:
+                    pressed4 = False
+                if event.key == pygame.K_SPACE:
+                    pressed5 = False
 
         for note in allNotes:
             note.move()
