@@ -45,23 +45,23 @@ while True:
     else:
         pressed1 = False  # reset once the held key is released
 
-    if keyboard.is_pressed("f"):
+    if keyboard.is_pressed("s"):
         if not pressed2:
-            level.writelines("{} {}\n".format("f", elapsed))
+            level.writelines("{} {}\n".format("s", elapsed))
             pressed2 = True  # set to true so that even if key is pressed, nothing will happen; no holding
     else:
         pressed2 = False  # reset once the held key is released
 
-    if keyboard.is_pressed("j"):
+    if keyboard.is_pressed("d"):
         if not pressed3:
-            level.writelines("{} {}\n".format("j", elapsed))
+            level.writelines("{} {}\n".format("d", elapsed))
             pressed3 = True  # set to true so that even if key is pressed, nothing will happen; no holding
     else:
         pressed3 = False  # reset once the held key is released
 
-    if keyboard.is_pressed(";"):
+    if keyboard.is_pressed("f"):
         if not pressed4:
-            level.writelines("{} {}\n".format(";", elapsed))
+            level.writelines("{} {}\n".format("f", elapsed))
             pressed4 = True  # set to true so that even if key is pressed, nothing will happen; no holding
     else:
         pressed4 = False  # reset once the held key is released
