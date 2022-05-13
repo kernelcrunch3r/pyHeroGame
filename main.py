@@ -317,7 +317,7 @@ def game():
                     for i in range(4):  # run for the first 5 notes because of chords
                         if len(allNotes) > 0 and allNotes[i].color == "red":  # only run if notes are onscreen
                             # check if the first note is colliding with the corresponding checker
-                            if checkerNotes[0].collide_check(allNotes[i]):
+                            if checkerNotes[1].collide_check(allNotes[i]):
                                 hits += 1
                                 allNotes.pop(i)  # remove the first note if pressed at right time
 
@@ -326,9 +326,9 @@ def game():
                     pressed3 = True
                     # check if a note is colliding with the corresponding key pressed
                     for i in range(4):  # run for the first 5 notes because of chords
-                        if len(allNotes) > 0 and allNotes[i].color == "yellow":  # only run if notes are onscreen
+                        if len(allNotes) > 4 and allNotes[i].color == "yellow":  # only run if notes are onscreen
                             # check if the first note is colliding with the corresponding checker
-                            if checkerNotes[0].collide_check(allNotes[i]):
+                            if checkerNotes[2].collide_check(allNotes[i]):
                                 hits += 1
                                 allNotes.pop(i)  # remove the first note if pressed at right time
 
@@ -339,7 +339,7 @@ def game():
                     for i in range(4):  # run for the first 5 notes because of chords
                         if len(allNotes) > 0 and allNotes[i].color == "blue":  # only run if notes are onscreen
                             # check if the first note is colliding with the corresponding checker
-                            if checkerNotes[0].collide_check(allNotes[i]):
+                            if checkerNotes[3].collide_check(allNotes[i]):
                                 hits += 1
                                 allNotes.pop(i)  # remove the first note if pressed at right time
 
@@ -350,7 +350,7 @@ def game():
                     for i in range(4):  # run for the first 5 notes because of chords
                         if len(allNotes) > 0 and allNotes[i].color == "orange":  # only run if notes are onscreen
                             # check if the first note is colliding with the corresponding checker
-                            if checkerNotes[0].collide_check(allNotes[i]):
+                            if checkerNotes[4].collide_check(allNotes[i]):
                                 hits += 1
                                 allNotes.pop(i)  # remove the first note if pressed at right time
                 print(hits)
