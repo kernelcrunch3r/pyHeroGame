@@ -30,6 +30,7 @@ while True:
         if not tPressed:
             # I'll press t to represent time to start the music, just for simplicity looking at files
             level.writelines("{} {}\n".format("t", elapsed))
+            startTime = elapsed  # set start time to the t press time, so each log is time after music starts
             tPressed = True  # stop looking for t presses
 
     if keyboard.is_pressed("e"):
