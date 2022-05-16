@@ -17,7 +17,7 @@ BLUE = (0, 0, 255)
 GREY = (187, 187, 187)
 TEEL = (51, 245, 255)
 
-BASE_FONT = pygame.font.Font(None, 32)
+BASE_FONT = pygame.font.Font(os.path.join("fonts", "prstartk.ttf"), 18)
 
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("pyHero")  # window title
@@ -128,8 +128,11 @@ def song_menu():
         screen.fill(BLUE)
 
         prompt = BASE_FONT.render("Please enter the name of your song:", True, GREY)
-        screen.blit(prompt, (WIDTH / 4, HEIGHT / 3))
-        screen.blit(text, (WIDTH / 4, HEIGHT / 2))
+        promptRect = prompt.get_rect(center=(WIDTH / 2, HEIGHT / 4))
+        screen.blit(prompt, promptRect)
+
+        textRect = text.get_rect(center=(WIDTH/2, HEIGHT / 2))
+        screen.blit(text, textRect)
         pygame.display.update()
 
     songSelection = ""
@@ -159,6 +162,27 @@ song = song_menu()
 # song = "smoke on the water real"
 
 print(song)
+
+
+def song_clicking_menu():
+    def draw_window():
+        pass
+
+    songs = []  # a list containing
+    # create a list containing the song file names
+    songNames = os.listdir(os.path.join("song txts"))
+    for i in range(len(songNames)):  # go through the list and remove the .txt from end
+        songNames[i] = songNames[i][:-4]
+
+
+    running = True
+    while running:
+        clock.tick(FPS)
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
+
+        draw_window()
 
 
 # Function containing the code for the main gameplay
@@ -214,8 +238,8 @@ def game():
         # spawn a note in time to hit the checker at the right time
         # music start time plus note occurrence after start time minus the time it takes for note to fall
         elif elapsed >= songNotes[0][1] + songNotes[pos][1] - Note("green").get_fall_time(checkHeight):
-            '''if pos == len(songNotes) - 1:  # the last position will signal the end of the song, ending game
-                running = False'''
+            if pos == len(songNotes) - 1:  # the last position will signal the end of the song, ending game
+                running = False
 
             # spawn a note corresponding to the "fret" pressed
             if songNotes[pos][0] == "a":
