@@ -17,7 +17,10 @@ BLUE = (0, 0, 255)
 GREY = (187, 187, 187)
 TEEL = (51, 245, 255)
 
-BASE_FONT = pygame.font.Font(os.path.join("fonts", "prstartk.ttf"), 18)
+inactiveColor = WHITE
+activeColor = GREY
+
+PIXEL_FONT = pygame.font.Font(os.path.join("fonts", "prstartk.ttf"), 18)
 
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("pyHero")  # window title
@@ -127,7 +130,7 @@ def song_menu():
     def draw_window(text):  # make a drawing function to easily display window, but specific to song-selecting
         screen.fill(BLUE)
 
-        prompt = BASE_FONT.render("Please enter the name of your song:", True, GREY)
+        prompt = PIXEL_FONT.render("Please enter the name of your song:", True, GREY)
         promptRect = prompt.get_rect(center=(WIDTH / 2, HEIGHT / 4))
         screen.blit(prompt, promptRect)
 
@@ -153,13 +156,13 @@ def song_menu():
                     songSelection += event.unicode  # add on whatever is typed to the selection
 
         # create a surface for the text
-        textSurface = BASE_FONT.render(songSelection, True, WHITE)
+        textSurface = PIXEL_FONT.render(songSelection, True, WHITE)
         # draw everything
         draw_window(textSurface)
 
 
 # song = song_menu()
-song = "smoke on the water real"
+# song = "smoke on the water real"
 
 # print(song)
 
@@ -167,15 +170,25 @@ song = "smoke on the water real"
 # a class used to create a button using the passed text
 class SongButton:
     def __init__(self, text, x, y):
+        self.color = inactiveColor
         self.x = x
         self.y = y
         self.text = text
         # create a surface for the text
-        self.textSurface = BASE_FONT.render(self.text, True, WHITE)
-        self.rect = self.textSurface.get_rect(center=(x, y))
+        self.textSurface = PIXEL_FONT.render(self.text, True, self.color)
+        self.rect = self.textSurface.get_rect(center=(self.x, self.y))
 
     def draw(self):
         screen.blit(self.textSurface, self.rect)
+
+    def update(self):
+        if self.rect.collidepoint(pygame.mouse.get_pos()):  # change color if the mouse hovers over the name
+            self.color = activeColor
+        else:
+            self.color = inactiveColor
+
+        # render the text again, potentially with new color
+        self.textSurface = PIXEL_FONT.render(self.text, True, self.color)
 
 
 def song_clicking_menu():
@@ -183,6 +196,7 @@ def song_clicking_menu():
         screen.fill(TEEL)
 
         for button in buttons:
+            button.update()
             button.draw()
 
         pygame.display.update()
@@ -201,11 +215,17 @@ def song_clicking_menu():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                # when mouse button is pressed, check if it collides with a song, then return that song as selected
+                for button in songButtons:
+                    if button.rect.collidepoint(pygame.mouse.get_pos()):
+                        return button.text  # return the song name as selection
 
         draw_window(songButtons)
 
 
-song_clicking_menu()
+song = song_clicking_menu()
+
 
 # Function containing the code for the main gameplay
 def game():
