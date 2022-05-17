@@ -192,7 +192,8 @@ def song_clicking_menu():
     songNames = os.listdir(os.path.join("song txts"))
     for i in range(len(songNames)):  # go through the list and remove the .txt from end
         songNames[i] = songNames[i][:-4]
-        songButtons.append(SongButton(songNames[i]))  # add the button object to the list of song title buttons
+        # add the button object to the list of song title buttons
+        songButtons.append(SongButton(songNames[i], WIDTH / 2, HEIGHT * (i + 1) / (len(songNames) + 1)))
 
     running = True
     while running:
@@ -253,10 +254,7 @@ def game():
             pygame.mixer.music.play(-1)
             musicPlaying = True
 
-        '''if pos == len(songNotes):  # pos would be out of index, and all notes would be completed
-            if elapsed >= songNotes[-1][1]:  # end at the last "log" in the txt file
-                running = False'''
-
+        # check if the position is at the last "log," then end the program after it is passed
         if pos == len(songNotes) - 1:
             if elapsed >= songNotes[0][1] + songNotes[-1][1]:
                 running = False
@@ -279,7 +277,6 @@ def game():
                 allNotes.append(Note("orange"))
             pos += 1
 
-        pressed = 0  # variable used for which key number is pressed (1-5 from left to right)
         for event in pygame.event.get():  # to exit
             if event.type == pygame.QUIT:
                 running = False

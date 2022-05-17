@@ -17,8 +17,8 @@ def song_reader(name):
 
     notes.pop(len(notes) - 1)  # there is always a blank space at the end
 
-    for i in range(len(notes)):
-        notes[i][1] = int(notes[i][1])  # the level creator has already rounded the time into an integer but in a string
+    for note in notes:
+        note[1] = int(note[1])  # the level creator has already rounded the time into an integer but in a string
 
     print(notes)
     return notes
