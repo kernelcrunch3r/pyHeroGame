@@ -158,22 +158,41 @@ def song_menu():
         draw_window(textSurface)
 
 
-song = song_menu()
-# song = "smoke on the water real"
+# song = song_menu()
+song = "smoke on the water real"
 
-print(song)
+# print(song)
+
+
+# a class used to create a button using the passed text
+class SongButton:
+    def __init__(self, text, x, y):
+        self.x = x
+        self.y = y
+        self.text = text
+        # create a surface for the text
+        self.textSurface = BASE_FONT.render(self.text, True, WHITE)
+        self.rect = self.textSurface.get_rect(center=(x, y))
+
+    def draw(self):
+        screen.blit(self.textSurface, self.rect)
 
 
 def song_clicking_menu():
-    def draw_window():
-        pass
+    def draw_window(buttons):
+        screen.fill(TEEL)
 
-    songs = []  # a list containing
+        for button in buttons:
+            button.draw()
+
+        pygame.display.update()
+
+    songButtons = []  # a list containing all the song objects to be displayed on screen
     # create a list containing the song file names
     songNames = os.listdir(os.path.join("song txts"))
     for i in range(len(songNames)):  # go through the list and remove the .txt from end
         songNames[i] = songNames[i][:-4]
-
+        songButtons.append(SongButton(songNames[i]))  # add the button object to the list of song title buttons
 
     running = True
     while running:
@@ -182,8 +201,10 @@ def song_clicking_menu():
             if event.type == pygame.QUIT:
                 running = False
 
-        draw_window()
+        draw_window(songButtons)
 
+
+song_clicking_menu()
 
 # Function containing the code for the main gameplay
 def game():
@@ -232,8 +253,12 @@ def game():
             pygame.mixer.music.play(-1)
             musicPlaying = True
 
-        if pos == len(songNotes):  # pos would be out of index, and all notes would be completed
+        '''if pos == len(songNotes):  # pos would be out of index, and all notes would be completed
             if elapsed >= songNotes[-1][1]:  # end at the last "log" in the txt file
+                running = False'''
+
+        if pos == len(songNotes) - 1:
+            if elapsed >= songNotes[0][1] + songNotes[-1][1]:
                 running = False
         # spawn a note in time to hit the checker at the right time
         # music start time plus note occurrence after start time minus the time it takes for note to fall
@@ -310,7 +335,6 @@ def game():
                         for ii in range(5):
                             if allNotes[i]'''
 
-
             print(hits)
 
         for note in allNotes:
@@ -321,7 +345,7 @@ def game():
             allNotes.pop(0)
 
         draw_window(allNotes, checkerNotes)
-        pygame.display.set_caption("{}".format(clock.get_fps()))
+        pygame.display.set_caption("{} - {}".format(song, elapsed/1000))
 
 
 game()
