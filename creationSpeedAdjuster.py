@@ -8,15 +8,15 @@ name = input("Song: ")  # get the song choice
 
 notes = song_reader(name)  # put the existing notes into a list to be changed
 
-speedAdj = float(input("Enter the decimal percentage at which you would like to adjust the song's speed "
-                       "(0-1 to decrease, > 1 to increase): "))
+currentSpeed = float(input("Enter the current speed of the song from the original (decimal): "))
+speedAdj = float(input("Enter the desired song speed (decimal): "))
 
 # open the file again to replace the lines at new speed
 file = open("song txts/{}.txt".format(name), "w")
 file.writelines("{} {}\n".format(notes[0][0], notes[0][1]))  # write the starting time
 
 for i in range(1, len(notes)):
-    notes[i][1] = round(notes[i][1] / speedAdj)  # will make notes play quicker if they want speed increased, slower if decreased
+    notes[i][1] = round(notes[i][1] * currentSpeed / speedAdj)  # adjust each note spawn time to match the desired song speed
     file.writelines("{} {}\n".format(notes[i][0], notes[i][1]))
 
 file.close()

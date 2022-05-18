@@ -59,7 +59,7 @@ class Note:
         self.rect = self.image.get_rect(center=(self.x, self.y))
 
     def get_fall_time(self, checkerHeight):
-        return (1100 * checkerHeight) / (FPS * self.VEL)
+        return (1000 * checkerHeight) / (FPS * self.VEL)
 
     def move(self):
         self.rect.bottom += self.VEL
@@ -184,11 +184,13 @@ class SongButton:
     def update(self):
         if self.rect.collidepoint(pygame.mouse.get_pos()):  # change color if the mouse hovers over the name
             self.color = activeColor
-        else:
-            self.color = inactiveColor
+            # render the text again, potentially with new color
+            self.textSurface = PIXEL_FONT.render(self.text, True, self.color)
 
-        # render the text again, potentially with new color
-        self.textSurface = PIXEL_FONT.render(self.text, True, self.color)
+        elif self.color == activeColor:  # if the color is active, but mouse is moved off, change color back
+            self.color = inactiveColor
+            # render the text again, potentially with new color
+            self.textSurface = PIXEL_FONT.render(self.text, True, self.color)
 
 
 def song_clicking_menu():
@@ -232,6 +234,9 @@ def game():
     # use the imported function to read the selected song and put the notes and times into a list
     songNotes = song_reader(song)
 
+    # set up the music
+    pygame.mixer.music.load("songs/{}.mp3".format(song))
+
     checkerNotes = [NoteChecker("green"),
                     NoteChecker("red"),
                     NoteChecker("yellow"),
@@ -269,8 +274,7 @@ def game():
         elapsed = currentTime - startTime  # elapsed run-time
 
         # play the music when the first "log" in the file is passed
-        if elapsed >= songNotes[0][1] and not musicPlaying:
-            pygame.mixer.music.load("songs/{}.mp3".format(song))
+        if elapsed >= songNotes[0][1] + 700 and not musicPlaying:
             pygame.mixer.music.play(-1)
             musicPlaying = True
 
