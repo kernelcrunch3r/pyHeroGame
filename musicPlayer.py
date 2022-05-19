@@ -7,7 +7,7 @@ import keyboard
 def song_reader(name):
     with open("song txts/{}.txt".format(name)) as file:  # open the input's file and put the lines into a list
         n = list(file.read().split("\n"))  # get each note and its time in an element of an array
-        print(n)
+        # print(n)
         file.close()
 
     notes = []
@@ -20,7 +20,7 @@ def song_reader(name):
     for note in notes:
         note[1] = int(note[1])  # the level creator has already rounded the time into an integer but in a string
 
-    print(notes)
+    # print(notes)
     return notes
 
 
