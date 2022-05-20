@@ -16,6 +16,7 @@ WHITE = (255, 255, 255)
 BLUE = (0, 0, 255)
 GREY = (187, 187, 187)
 TEEL = (51, 245, 255)
+BLACK = (0, 0, 0)
 
 inactiveColor = WHITE
 activeColor = GREY
@@ -59,6 +60,7 @@ class Note:
         self.rect = self.image.get_rect(center=(self.x, self.y))
 
     def get_fall_time(self, checkerHeight):
+        # using the velocity of the notes and the distance from top of screen to the checker, I determined this formula
         return (1000 * checkerHeight) / (FPS * self.VEL)
 
     def move(self):
@@ -74,7 +76,7 @@ CHECKER_IMGS = [pygame.image.load(os.path.join("imgs", "green checker1.png")),
                 pygame.image.load(os.path.join("imgs", "yellow checker1.png")),
                 pygame.image.load(os.path.join("imgs", "blue checker1.png")),
                 pygame.image.load(os.path.join("imgs", "orange checker1.png"))]
-CHECKER_Y = HEIGHT - 50 - CHECKER_IMGS[0].get_height()
+CHECKER_Y = HEIGHT - 50 - CHECKER_IMGS[0].get_height()  #
 
 
 # class for the image at the bottom of the screen used to "play" the note
@@ -245,7 +247,7 @@ def game():
     checkHeight = checkerNotes[0].y
 
     # local function used to draw the game window
-    def draw_window(notes, checkers):
+    def draw_window(notes, checkers, hits):
         screen.fill(TEEL)
         # NoteChecker("test").draw()
 
@@ -254,6 +256,9 @@ def game():
 
         for note in notes:
             note.draw()  # draw each
+
+        score = PIXEL_FONT.render("{}".format(hits), True, WHITE, BLACK)
+        screen.blit(score, score.get_rect(center=(15*WIDTH/16, HEIGHT/12)))
 
         pygame.display.update()
 
@@ -351,12 +356,6 @@ def game():
                             hits += 1
                             allNotes.pop(hitNotePos)  # remove the detected hit note
 
-                '''if len(allNotes) > 0:
-                    for i in range(3):  # check the first 5 notes for a collision on time with checkers
-                        for ii in range(5):
-                            if allNotes[i]'''
-
-            print(hits)
 
         for note in allNotes:
             note.move()
@@ -365,7 +364,7 @@ def game():
         if len(allNotes) > 0 and allNotes[0].rect.top > checkerNotes[0].rect.bottom:
             allNotes.pop(0)
 
-        draw_window(allNotes, checkerNotes)
+        draw_window(allNotes, checkerNotes, hits)
         pygame.display.set_caption("{} - {}".format(song, elapsed/1000))
 
 
