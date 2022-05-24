@@ -17,6 +17,7 @@ BLUE = (0, 0, 255)
 GREY = (187, 187, 187)
 TEEL = (51, 245, 255)
 BLACK = (0, 0, 0)
+LIGHT_GREY = (206, 206, 206)
 
 inactiveColor = WHITE
 activeColor = GREY
@@ -127,20 +128,29 @@ class NoteChecker:
         return False, 5  # no collisions have occurred
 
 
-# Menu used to select a song.
-def song_menu():
-    def draw_window(text):  # make a drawing function to easily display window, but specific to song-selecting
+# Menu used to create a 3-letter username.
+def name_select():
+    def draw_window(text, errorText):  # make a drawing function to easily display window, but specific to song-selecting
         screen.fill(BLUE)
 
-        prompt = PIXEL_FONT.render("Please enter the name of your song:", True, GREY)
+        prompt = PIXEL_FONT.render("Please enter a 3-letter username:", True, GREY)
         promptRect = prompt.get_rect(center=(WIDTH / 2, HEIGHT / 4))
-        screen.blit(prompt, promptRect)
+        screen.blit(prompt, promptRect)  # "draw" the prompt text with the rect's position
+
+        if errorText != "":
+            error = PIXEL_FONT.render(errorText, True, LIGHT_GREY)
+            errorRect = error.get_rect(center=(WIDTH / 2, 2 * HEIGHT / 3))
+            screen.blit(error, errorRect)
 
         textRect = text.get_rect(center=(WIDTH/2, HEIGHT / 2))
         screen.blit(text, textRect)
         pygame.display.update()
 
     songSelection = ""
+    errorMessage = ""
+
+    vulgarities = ["FUC", "FUK", "SHT", "PSS", "PUS", "CNT", "DMN", "DAM", "GOD", "GDM", "NIG", "NGR", "ASS", "CUM",
+                   "FAG", "FGT", "TIT", "COC", "COK", "CCK", "DIC", "DIK", "DCK"]
 
     running = True
     while running:  # game loop
@@ -153,20 +163,23 @@ def song_menu():
                 if event.key == pygame.K_BACKSPACE:
                     songSelection = songSelection[:-1]  # remove last character from text if backspaced
                 elif event.key == pygame.K_RETURN:
-                    return songSelection  # select song when enter (return) is pressed
+                    if len(songSelection) > 3:
+                        errorMessage = "Make sure your name is 3-letters long."
+                    elif songSelection.upper() in vulgarities:
+                        errorMessage = "Inappropriate name."
+                    else:
+                        return songSelection.upper()  # select username in capitals
                 else:
                     songSelection += event.unicode  # add on whatever is typed to the selection
 
         # create a surface for the text
         textSurface = PIXEL_FONT.render(songSelection, True, WHITE)
         # draw everything
-        draw_window(textSurface)
+        draw_window(textSurface, errorMessage)
 
 
-# song = song_menu()
-# song = "smoke on the water real"
-
-# print(song)
+username = name_select()
+print(username)
 
 
 # a class used to create a button using the passed text
@@ -356,7 +369,6 @@ def game():
                             hits += 1
                             allNotes.pop(hitNotePos)  # remove the detected hit note
 
-
         for note in allNotes:
             note.move()
 
@@ -367,5 +379,12 @@ def game():
         draw_window(allNotes, checkerNotes, hits)
         pygame.display.set_caption("{} - {}".format(song, elapsed/1000))
 
+    # enter the user's highscore into the highscores text files
+    highscores = open(os.path.join("highscores", "{}.txt".format(song)), "a")
+    highscores.write("{} {}\n".format(username, hits))
+    highscores.close()
+    print("{} {}".format(username, hits))
+
 
 game()
+
