@@ -8,6 +8,8 @@ This file is to be used to create song txts in
 
 name = input("Song: ")  # get the song choice
 
+speed = input("What speed is the song being made at from the original? (1 = original): ")
+
 clock = pygame.time.Clock()
 startTime = pygame.time.get_ticks()  # get the starting time
 
@@ -24,13 +26,13 @@ tPressed = False
 while True:
     clock.tick(30)
     currentTime = pygame.time.get_ticks()
-    elapsed = currentTime - startTime
+    elapsed = round((currentTime - startTime) * float(speed))
 
     if keyboard.is_pressed("t"):
         if not tPressed:
             # I'll press t to represent time to start the music, just for simplicity looking at files
             level.writelines("{} {}\n".format("t", 3000))  # start music after 3 seconds
-            startTime = elapsed  # set start time to the t press time, so each log is time after music starts
+            startTime = pygame.time.get_ticks()  # set start time to the t press time, so each log is time after music starts
             tPressed = True  # stop looking for t presses
 
     if keyboard.is_pressed("e"):

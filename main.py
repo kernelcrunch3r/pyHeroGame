@@ -10,8 +10,6 @@ clock = pygame.time.Clock()
 WIDTH, HEIGHT = 800, 600
 FPS = 30
 
-VEL = 5
-
 WHITE = (255, 255, 255)
 BLUE = (0, 0, 255)
 GREY = (187, 187, 187)
@@ -22,7 +20,8 @@ LIGHT_GREY = (206, 206, 206)
 inactiveColor = WHITE
 activeColor = GREY
 
-PIXEL_FONT = pygame.font.Font(os.path.join("fonts", "prstartk.ttf"), 18)
+PIXEL_FONT_NORMAL = pygame.font.Font(os.path.join("fonts", "prstartk.ttf"), 18)
+PIXEL_FONT_SMALL = pygame.font.Font(os.path.join("fonts", "prstartk.ttf"), 12)
 
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("pyHero")  # window title
@@ -133,12 +132,12 @@ def name_select():
     def draw_window(text, errorText):  # make a drawing function to easily display window, but specific to song-selecting
         screen.fill(BLUE)
 
-        prompt = PIXEL_FONT.render("Please enter a 3-letter username:", True, GREY)
+        prompt = PIXEL_FONT_NORMAL.render("Please enter a 3-letter username:", True, GREY)
         promptRect = prompt.get_rect(center=(WIDTH / 2, HEIGHT / 4))
         screen.blit(prompt, promptRect)  # "draw" the prompt text with the rect's position
 
         if errorText != "":
-            error = PIXEL_FONT.render(errorText, True, LIGHT_GREY)
+            error = PIXEL_FONT_NORMAL.render(errorText, True, LIGHT_GREY)
             errorRect = error.get_rect(center=(WIDTH / 2, 2 * HEIGHT / 3))
             screen.blit(error, errorRect)
 
@@ -158,12 +157,14 @@ def name_select():
         for event in pygame.event.get():  # to exit
             if event.type == pygame.QUIT:
                 running = False
+                pygame.quit()
+                exit()
             # enter text to choose song
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_BACKSPACE:
                     songSelection = songSelection[:-1]  # remove last character from text if backspaced
                 elif event.key == pygame.K_RETURN:
-                    if len(songSelection) > 3:
+                    if len(songSelection) != 3:
                         errorMessage = "Make sure your name is 3-letters long."
                     elif songSelection.upper() in vulgarities:
                         errorMessage = "Inappropriate name."
@@ -173,13 +174,12 @@ def name_select():
                     songSelection += event.unicode  # add on whatever is typed to the selection
 
         # create a surface for the text
-        textSurface = PIXEL_FONT.render(songSelection, True, WHITE)
+        textSurface = PIXEL_FONT_NORMAL.render(songSelection, True, WHITE)
         # draw everything
         draw_window(textSurface, errorMessage)
 
 
-username = name_select()
-print(username)
+username = name_select()  # call the username menu to get a username
 
 
 # a class used to create a button using the passed text
@@ -190,7 +190,7 @@ class SongButton:
         self.y = y
         self.text = text
         # create a surface for the text
-        self.textSurface = PIXEL_FONT.render(self.text, True, self.color)
+        self.textSurface = PIXEL_FONT_NORMAL.render(self.text, True, self.color)
         self.rect = self.textSurface.get_rect(center=(self.x, self.y))
 
     def draw(self):
@@ -200,12 +200,12 @@ class SongButton:
         if self.rect.collidepoint(pygame.mouse.get_pos()):  # change color if the mouse hovers over the name
             self.color = activeColor
             # render the text again, potentially with new color
-            self.textSurface = PIXEL_FONT.render(self.text, True, self.color)
+            self.textSurface = PIXEL_FONT_NORMAL.render(self.text, True, self.color)
 
         elif self.color == activeColor:  # if the color is active, but mouse is moved off, change color back
             self.color = inactiveColor
             # render the text again, potentially with new color
-            self.textSurface = PIXEL_FONT.render(self.text, True, self.color)
+            self.textSurface = PIXEL_FONT_NORMAL.render(self.text, True, self.color)
 
 
 def song_clicking_menu():
@@ -232,6 +232,8 @@ def song_clicking_menu():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
+                pygame.quit()
+                exit()
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 # when mouse button is pressed, check if it collides with a song, then return that song as selected
                 for button in songButtons:
@@ -244,8 +246,56 @@ def song_clicking_menu():
 song = song_clicking_menu()
 
 
+def instructions():
+    def draw_window():
+        screen.fill(TEEL)
+
+        instructionTexts = []
+        instructionRects = []
+        instructionTexts.append(PIXEL_FONT_NORMAL.render("Moving from left to right, the controls are:", True, GREY))
+        instructionRects.append(instructionTexts[0].get_rect(center=(WIDTH / 2, 7 * HEIGHT / 15)))
+        instructionTexts.append(PIXEL_FONT_NORMAL.render("[a], [s], [d], [f], [space]", True, GREY))
+        instructionRects.append(instructionTexts[1].get_rect(center=(WIDTH / 2, 8 * HEIGHT / 15)))
+
+        for i in range(len(instructionTexts)):
+            screen.blit(instructionTexts[i], instructionRects[i])  # "draw" the prompt text with the rect's position
+
+        pygame.display.update()
+
+    running = True
+    while running:
+        clock.tick(30)
+        draw_window()
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
+                pygame.quit()
+                exit()
+            elif event.type == pygame.KEYDOWN:
+                running = False
+
+
+instructions()  # display the game instructions
+
+
 # Function containing the code for the main gameplay
 def game():
+    # local function used to draw the game window
+    def draw_window(notes, checkers, hits):
+        screen.fill(TEEL)
+
+        for checker in checkers:
+            checker.draw()
+
+        for note in notes:
+            note.draw()  # draw each
+
+        score = PIXEL_FONT_NORMAL.render("{}".format(hits), True, WHITE, BLACK)
+        screen.blit(score, score.get_rect(center=(15*WIDTH/16, HEIGHT/12)))
+
+        pygame.display.update()
+
     # use the imported function to read the selected song and put the notes and times into a list
     songNotes = song_reader(song)
 
@@ -259,29 +309,13 @@ def game():
                     NoteChecker("orange")]
     checkHeight = checkerNotes[0].y
 
-    # local function used to draw the game window
-    def draw_window(notes, checkers, hits):
-        screen.fill(TEEL)
-        # NoteChecker("test").draw()
-
-        for checker in checkers:
-            checker.draw()
-
-        for note in notes:
-            note.draw()  # draw each
-
-        score = PIXEL_FONT.render("{}".format(hits), True, WHITE, BLACK)
-        screen.blit(score, score.get_rect(center=(15*WIDTH/16, HEIGHT/12)))
-
-        pygame.display.update()
-
     # get the game's start time
     startTime = pygame.time.get_ticks()
 
     # list of the generated notes appearing
     allNotes = []
 
-    hits = 0  # counter for notes hit at the right time
+    points = 0.0  # counter for notes hit at the right time
     musicPlaying = False  # music player boolean
     pos = 1  # counter used to run through the .txt's songNotes list
     running = True
@@ -292,7 +326,7 @@ def game():
         elapsed = currentTime - startTime  # elapsed run-time
 
         # play the music when the first "log" in the file is passed
-        if elapsed >= songNotes[0][1] + 700 and not musicPlaying:
+        if elapsed >= songNotes[0][1] + 300 and not musicPlaying:
             pygame.mixer.music.play(-1)
             musicPlaying = True
 
@@ -330,8 +364,10 @@ def game():
                         noteIsHit, hitNotePos = checkerNotes[0].collide_check(allNotes)
                         # check if a note hits the box at when right button is pressed
                         if noteIsHit:
-                            hits += 1
+                            points += 1
                             allNotes.pop(hitNotePos)  # remove the detected hit note
+                        else:
+                            points -= 0.5
 
                 elif event.key == pygame.K_s:
                     print("s tapped")
@@ -339,8 +375,10 @@ def game():
                         noteIsHit, hitNotePos = checkerNotes[1].collide_check(allNotes)
                         # check if a note hits the box at when right button is pressed
                         if noteIsHit:
-                            hits += 1
+                            points += 1
                             allNotes.pop(hitNotePos)  # remove the detected hit note
+                        else:
+                            points -= 0.5
 
                 elif event.key == pygame.K_d:
                     print("d tapped")
@@ -348,8 +386,10 @@ def game():
                         noteIsHit, hitNotePos = checkerNotes[2].collide_check(allNotes)
                         # check if a note hits the box at when right button is pressed
                         if noteIsHit:
-                            hits += 1
+                            points += 1
                             allNotes.pop(hitNotePos)  # remove the detected hit note
+                        else:
+                            points -= 0.5
 
                 elif event.key == pygame.K_f:
                     print("f tapped")
@@ -357,8 +397,10 @@ def game():
                         noteIsHit, hitNotePos = checkerNotes[3].collide_check(allNotes)
                         # check if a note hits the box at when right button is pressed
                         if noteIsHit:
-                            hits += 1
+                            points += 1
                             allNotes.pop(hitNotePos)  # remove the detected hit note
+                        else:
+                            points -= 0.5
 
                 elif event.key == pygame.K_SPACE:
                     print("space tapped")
@@ -366,8 +408,10 @@ def game():
                         noteIsHit, hitNotePos = checkerNotes[4].collide_check(allNotes)
                         # check if a note hits the box at when right button is pressed
                         if noteIsHit:
-                            hits += 1
+                            points += 1
                             allNotes.pop(hitNotePos)  # remove the detected hit note
+                        else:
+                            points -= 0.5
 
         for note in allNotes:
             note.move()
@@ -376,14 +420,14 @@ def game():
         if len(allNotes) > 0 and allNotes[0].rect.top > checkerNotes[0].rect.bottom:
             allNotes.pop(0)
 
-        draw_window(allNotes, checkerNotes, hits)
+        draw_window(allNotes, checkerNotes, points)
         pygame.display.set_caption("{} - {}".format(song, elapsed/1000))
 
     # enter the user's highscore into the highscores text files
     highscores = open(os.path.join("highscores", "{}.txt".format(song)), "a")
-    highscores.write("{} {}\n".format(username, hits))
+    highscores.write("{} {}\n".format(username, points))
     highscores.close()
-    print("{} {}".format(username, hits))
+    print("{} {}".format(username, points))
 
 
 game()
