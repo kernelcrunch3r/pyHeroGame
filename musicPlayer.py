@@ -4,8 +4,8 @@ import keyboard
 
 
 # function used to open a created song txt file and transition all the lines into a list of lists
-def song_reader(name):
-    with open("song txts/{}.txt".format(name)) as file:  # open the input's file and put the lines into a list
+def song_reader(folder, name):
+    with open("{}/{}.txt".format(folder, name)) as file:  # open the input's file and put the lines into a list
         n = list(file.read().split("\n"))  # get each note and its time in an element of an array
         # print(n)
         file.close()
@@ -18,7 +18,7 @@ def song_reader(name):
     notes.pop(len(notes) - 1)  # there is always a blank space at the end
 
     for note in notes:
-        note[1] = int(note[1])  # the level creator has already rounded the time into an integer but in a string
+        note[1] = float(note[1])  # the level creator has already rounded the time into an integer but in a string
 
     # print(notes)
     return notes

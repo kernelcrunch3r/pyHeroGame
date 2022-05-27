@@ -112,7 +112,7 @@ class NoteChecker:
         screen.blit(self.image, self.rect)
 
     def collide_check(self, notes):
-        if len(notes) >= 4:  # try to check the first four notes
+        if len(notes) >= 4:  # try to check the first four notes for collisions
             for i in range(4):
                 noteRect = notes[i].rect
 
@@ -149,7 +149,8 @@ def name_select():
     errorMessage = ""
 
     vulgarities = ["FUC", "FUK", "SHT", "PSS", "PUS", "CNT", "DMN", "DAM", "GOD", "GDM", "NIG", "NGR", "ASS", "CUM",
-                   "FAG", "FGT", "TIT", "COC", "COK", "CCK", "DIC", "DIK", "DCK"]
+                   "FAG", "FGT", "TIT", "COC", "COK", "CCK", "DIC", "DIK", "DCK", "SEX", "S3X", "PSY", "@SS", "@$$",
+                   "A$S", "AS$", "@S$", "@$S", "C0C", "KKK", "F@G", "ELI", "PNS", ""]
 
     running = True
     while running:  # game loop
@@ -210,7 +211,7 @@ class SongButton:
 
 def song_clicking_menu():
     def draw_window(buttons):
-        screen.fill(TEEL)
+        screen.fill(BLUE)
 
         for button in buttons:
             button.update()
@@ -248,13 +249,13 @@ song = song_clicking_menu()
 
 def instructions():
     def draw_window():
-        screen.fill(TEEL)
+        screen.fill(BLUE)
 
         instructionTexts = []
         instructionRects = []
-        instructionTexts.append(PIXEL_FONT_NORMAL.render("Moving from left to right, the controls are:", True, GREY))
+        instructionTexts.append(PIXEL_FONT_NORMAL.render("Moving from left to right, the", True, GREY))
         instructionRects.append(instructionTexts[0].get_rect(center=(WIDTH / 2, 7 * HEIGHT / 15)))
-        instructionTexts.append(PIXEL_FONT_NORMAL.render("[a], [s], [d], [f], [space]", True, GREY))
+        instructionTexts.append(PIXEL_FONT_NORMAL.render("controls are: [a], [s], [d], [f], [space]", True, GREY))
         instructionRects.append(instructionTexts[1].get_rect(center=(WIDTH / 2, 8 * HEIGHT / 15)))
 
         for i in range(len(instructionTexts)):
@@ -282,7 +283,7 @@ instructions()  # display the game instructions
 # Function containing the code for the main gameplay
 def game():
     # local function used to draw the game window
-    def draw_window(notes, checkers, hits):
+    def draw_window(notes, checkers, hits, hs):
         screen.fill(TEEL)
 
         for checker in checkers:
@@ -292,12 +293,19 @@ def game():
             note.draw()  # draw each
 
         score = PIXEL_FONT_NORMAL.render("{}".format(hits), True, WHITE, BLACK)
-        screen.blit(score, score.get_rect(center=(15*WIDTH/16, HEIGHT/12)))
+        screen.blit(score, score.get_rect(center=(15*WIDTH/16, HEIGHT/16)))
+
+        highscore = PIXEL_FONT_NORMAL.render("{} - {}".format(hs[0], hs[1]), True, WHITE, BLACK)
+        screen.blit(highscore, highscore.get_rect(center=(WIDTH/2, 15 * HEIGHT/16)))
 
         pygame.display.update()
 
     # use the imported function to read the selected song and put the notes and times into a list
-    songNotes = song_reader(song)
+    songNotes = song_reader("song txts", song)
+    # use the same function to get a list of the high scores for the current song
+    highScores = song_reader("highscores", song)
+    highScores.sort(key=lambda x: x[1], reverse=True)
+    highscore = highScores[0]
 
     # set up the music
     pygame.mixer.music.load("songs/{}.mp3".format(song))
@@ -420,7 +428,7 @@ def game():
         if len(allNotes) > 0 and allNotes[0].rect.top > checkerNotes[0].rect.bottom:
             allNotes.pop(0)
 
-        draw_window(allNotes, checkerNotes, points)
+        draw_window(allNotes, checkerNotes, points, highscore)
         pygame.display.set_caption("{} - {}".format(song, elapsed/1000))
 
     # enter the user's highscore into the highscores text files
