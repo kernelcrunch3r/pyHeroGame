@@ -7,7 +7,6 @@ pygame.display.init()
 pygame.font.init()
 clock = pygame.time.Clock()
 
-WIDTH, HEIGHT = 800, 600
 FPS = 30
 
 WHITE = (255, 255, 255)
@@ -23,8 +22,9 @@ activeColor = GREY
 PIXEL_FONT_NORMAL = pygame.font.Font(os.path.join("fonts", "prstartk.ttf"), 18)
 PIXEL_FONT_SMALL = pygame.font.Font(os.path.join("fonts", "prstartk.ttf"), 12)
 
-screen = pygame.display.set_mode((WIDTH, HEIGHT))
+screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
 pygame.display.set_caption("pyHero")  # window title
+WIDTH, HEIGHT  = pygame.display.get_surface().get_size()
 
 
 # array of the note images (different colors, just select from array)
@@ -156,8 +156,7 @@ def name_select():
     while running:  # game loop
         clock.tick(FPS)
         for event in pygame.event.get():  # to exit
-            if event.type == pygame.QUIT:
-                running = False
+            if event.type == pygame.QUIT or (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE):
                 pygame.quit()
                 exit()
             # enter text to choose song
@@ -231,8 +230,7 @@ def song_clicking_menu():
     while running:
         clock.tick(FPS)
         for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                running = False
+            if event.type == pygame.QUIT or (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE):
                 pygame.quit()
                 exit()
             elif event.type == pygame.MOUSEBUTTONDOWN:
@@ -269,8 +267,7 @@ def instructions():
         draw_window()
 
         for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                running = False
+            if event.type == pygame.QUIT or (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE):
                 pygame.quit()
                 exit()
             elif event.type == pygame.KEYDOWN:
@@ -362,8 +359,9 @@ def game():
             pos += 1
 
         for event in pygame.event.get():  # to exit
-            if event.type == pygame.QUIT:
-                running = False
+            if event.type == pygame.QUIT or (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE):
+                pygame.quit()
+                exit()
             # get the input that happens and check if it's at the right time to 'hit' a note
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_a:
