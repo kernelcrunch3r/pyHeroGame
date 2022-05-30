@@ -22,9 +22,11 @@ activeColor = GREY
 PIXEL_FONT_NORMAL = pygame.font.Font(os.path.join("fonts", "prstartk.ttf"), 18)
 PIXEL_FONT_SMALL = pygame.font.Font(os.path.join("fonts", "prstartk.ttf"), 12)
 
-screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
+WIDTH, HEIGHT = 800, 600
+screen = pygame.display.set_mode((WIDTH, HEIGHT))
+# screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
 pygame.display.set_caption("pyHero")  # window title
-WIDTH, HEIGHT  = pygame.display.get_surface().get_size()
+# WIDTH, HEIGHT  = pygame.display.get_surface().get_size()
 
 
 # array of the note images (different colors, just select from array)
@@ -129,7 +131,7 @@ class NoteChecker:
 
 # Menu used to create a 3-letter username.
 def name_select():
-    def draw_window(text, errorText):  # make a drawing function to easily display window, but specific to song-selecting
+    def draw_window(text, errorText):  # make a draw function to easily display window, but specific to song-selecting
         screen.fill(BLUE)
 
         prompt = PIXEL_FONT_NORMAL.render("Please enter a 3-letter username:", True, GREY)
@@ -302,7 +304,7 @@ def game():
     # use the same function to get a list of the high scores for the current song
     highScores = song_reader("highscores", song)
     highScores.sort(key=lambda x: x[1], reverse=True)
-    highscore = highScores[0]
+    highScore = highScores[0]
 
     # set up the music
     pygame.mixer.music.load("songs/{}.mp3".format(song))
@@ -426,10 +428,10 @@ def game():
         if len(allNotes) > 0 and allNotes[0].rect.top > checkerNotes[0].rect.bottom:
             allNotes.pop(0)
 
-        draw_window(allNotes, checkerNotes, points, highscore)
+        draw_window(allNotes, checkerNotes, points, highScore)
         pygame.display.set_caption("{} - {}".format(song, elapsed/1000))
 
-    # enter the user's highscore into the highscores text files
+    # enter the user's highScore into the highscores text files
     highscores = open(os.path.join("highscores", "{}.txt".format(song)), "a")
     highscores.write("{} {}\n".format(username, points))
     highscores.close()
