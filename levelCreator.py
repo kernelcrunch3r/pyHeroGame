@@ -16,6 +16,7 @@ startTime = pygame.time.get_ticks()  # get the starting time
 print(startTime)
 
 level = open(os.path.join("song txts", "{}.txt".format(name)), "w")  # create a new file for the song and open it
+highScores = open(os.path.join("highscores", "{}.txt".format(name)), "a")
 
 pressed1 = False  # use to individually make sure a key isnt held
 pressed2 = False

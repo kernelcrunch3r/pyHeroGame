@@ -303,8 +303,11 @@ def game():
     songNotes = song_reader("song txts", song)
     # use the same function to get a list of the high scores for the current song
     highScores = song_reader("highscores", song)
-    highScores.sort(key=lambda x: x[1], reverse=True)
-    highScore = highScores[0]
+    if len(highScores) > 0:
+        highScores.sort(key=lambda x: x[1], reverse=True)
+        highScore = highScores[0]
+    else:
+        highScore = ["CPV", 0.0]
 
     # set up the music
     pygame.mixer.music.load("songs/{}.mp3".format(song))
