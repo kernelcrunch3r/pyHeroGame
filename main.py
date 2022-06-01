@@ -19,6 +19,7 @@ LIGHT_GREY = (206, 206, 206)
 inactiveColor = WHITE
 activeColor = GREY
 
+PIXEL_FONT_LARGE = pygame.font.Font(os.path.join("fonts", "prstartk.ttf"), 24)
 PIXEL_FONT_NORMAL = pygame.font.Font(os.path.join("fonts", "prstartk.ttf"), 18)
 PIXEL_FONT_SMALL = pygame.font.Font(os.path.join("fonts", "prstartk.ttf"), 12)
 
@@ -65,8 +66,9 @@ class Note:
         # using the velocity of the notes and the distance from top of screen to the checker, I determined this formula
         return (1000 * checkerHeight) / (FPS * self.VEL)
 
-    def move(self):
-        self.rect.bottom += self.VEL
+    def move(self, paused):
+        if not paused:
+            self.rect.bottom += self.VEL
 
     def draw(self):
         screen.blit(self.image, self.rect)
@@ -143,7 +145,7 @@ def name_select():
             errorRect = error.get_rect(center=(WIDTH / 2, 2 * HEIGHT / 3))
             screen.blit(error, errorRect)
 
-        textRect = text.get_rect(center=(WIDTH/2, HEIGHT / 2))
+        textRect = text.get_rect(center=(WIDTH / 2, HEIGHT / 2))
         screen.blit(text, textRect)
         pygame.display.update()
 
@@ -210,272 +212,300 @@ class SongButton:
             self.textSurface = PIXEL_FONT_NORMAL.render(self.text, True, self.color)
 
 
-def song_clicking_menu():
-    def draw_window(buttons):
-        screen.fill(BLUE)
+running = True
+while running:
+    def song_clicking_menu():
+        def draw_window(buttons):
+            screen.fill(BLUE)
 
-        for button in buttons:
-            button.update()
-            button.draw()
+            for button in buttons:
+                button.update()
+                button.draw()
 
-        pygame.display.update()
+            pygame.display.update()
 
-    songButtons = []  # a list containing all the song objects to be displayed on screen
-    # create a list containing the song file names
-    songNames = os.listdir(os.path.join("song txts"))
-    for i in range(len(songNames)):  # go through the list and remove the .txt from end
-        songNames[i] = songNames[i][:-4]
-        # add the button object to the list of song title buttons
-        songButtons.append(SongButton(songNames[i], WIDTH / 2, HEIGHT * (i + 1) / (len(songNames) + 1)))
+        songButtons = []  # a list containing all the song objects to be displayed on screen
+        # create a list containing the song file names
+        songNames = os.listdir(os.path.join("song txts"))
+        for i in range(len(songNames)):  # go through the list and remove the .txt from end
+            songNames[i] = songNames[i][:-4]
+            # add the button object to the list of song title buttons
+            songButtons.append(SongButton(songNames[i], WIDTH / 2, HEIGHT * (i + 1) / (len(songNames) + 1)))
 
-    running = True
-    while running:
-        clock.tick(FPS)
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT or (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE):
-                pygame.quit()
-                exit()
-            elif event.type == pygame.MOUSEBUTTONDOWN:
-                # when mouse button is pressed, check if it collides with a song, then return that song as selected
-                for button in songButtons:
-                    if button.rect.collidepoint(pygame.mouse.get_pos()):
-                        return button.text  # return the song name as selection
+        running = True
+        while running:
+            clock.tick(FPS)
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT or (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE):
+                    pygame.quit()
+                    exit()
+                elif event.type == pygame.MOUSEBUTTONDOWN:
+                    # when mouse button is pressed, check if it collides with a song, then return that song as selected
+                    for button in songButtons:
+                        if button.rect.collidepoint(pygame.mouse.get_pos()):
+                            return button.text  # return the song name as selection
 
-        draw_window(songButtons)
-
-
-song = song_clicking_menu()
-
-
-def instructions():
-    def draw_window():
-        screen.fill(BLUE)
-
-        instructionTexts = []
-        instructionRects = []
-        instructionTexts.append(PIXEL_FONT_NORMAL.render("Moving from left to right, the", True, GREY))
-        instructionRects.append(instructionTexts[0].get_rect(center=(WIDTH / 2, 7 * HEIGHT / 15)))
-        instructionTexts.append(PIXEL_FONT_NORMAL.render("controls are: [a], [s], [d], [f], [space]", True, GREY))
-        instructionRects.append(instructionTexts[1].get_rect(center=(WIDTH / 2, 8 * HEIGHT / 15)))
-
-        for i in range(len(instructionTexts)):
-            screen.blit(instructionTexts[i], instructionRects[i])  # "draw" the prompt text with the rect's position
-
-        pygame.display.update()
-
-    running = True
-    while running:
-        clock.tick(30)
-        draw_window()
-
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT or (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE):
-                pygame.quit()
-                exit()
-            elif event.type == pygame.KEYDOWN:
-                running = False
+            draw_window(songButtons)
 
 
-# instructions()  # display the game instructions
+    song = song_clicking_menu()
 
 
-# Function containing the code for the main gameplay
-def game():
-    # local function used to draw the game window
-    def draw_window(notes, checkers, hits, hs):
-        screen.fill(TEEL)
+    def instructions():
+        def draw_window():
+            screen.fill(BLUE)
 
-        for checker in checkers:
-            checker.draw()
+            instructionTexts = []
+            instructionRects = []
+            instructionTexts.append(PIXEL_FONT_NORMAL.render("Moving from left to right, the", True, GREY))
+            instructionRects.append(instructionTexts[0].get_rect(center=(WIDTH / 2, 7 * HEIGHT / 15)))
+            instructionTexts.append(PIXEL_FONT_NORMAL.render("controls are: [a], [s], [d], [f], [space]", True, GREY))
+            instructionRects.append(instructionTexts[1].get_rect(center=(WIDTH / 2, 8 * HEIGHT / 15)))
 
-        for note in notes:
-            note.draw()  # draw each
+            for i in range(len(instructionTexts)):
+                screen.blit(instructionTexts[i], instructionRects[i])  # "draw" the prompt text with the rect's position
 
-        score = PIXEL_FONT_NORMAL.render("{}".format(hits), True, WHITE, BLACK)
-        screen.blit(score, score.get_rect(center=(15*WIDTH/16, HEIGHT/16)))
+            pygame.display.update()
 
-        highscore = PIXEL_FONT_NORMAL.render("{} - {}".format(hs[0], hs[1]), True, WHITE, BLACK)
-        screen.blit(highscore, highscore.get_rect(center=(WIDTH/2, 15 * HEIGHT/16)))
+        running = True
+        while running:
+            clock.tick(30)
+            draw_window()
 
-        pygame.display.update()
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT or (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE):
+                    pygame.quit()
+                    exit()
+                elif event.type == pygame.KEYDOWN:
+                    running = False
 
-    # use the imported function to read the selected song and put the notes and times into a list
-    songNotes = song_reader("song txts", song)
-    # use the same function to get a list of the high scores for the current song
-    highScores = song_reader("highscores", song)
-    if len(highScores) > 0:
-        highScores.sort(key=lambda x: x[1], reverse=True)
-        highScore = highScores[0]
-    else:
-        highScore = ["CPV", 0.0]
 
-    # set up the music
-    pygame.mixer.music.load("songs/{}.mp3".format(song))
+    # instructions()  # display the game instructions
 
-    checkerNotes = [NoteChecker("green"),
-                    NoteChecker("red"),
-                    NoteChecker("yellow"),
-                    NoteChecker("blue"),
-                    NoteChecker("orange")]
-    checkHeight = checkerNotes[0].y
+    # Function containing the code for the main gameplay
+    def game():
+        # local function used to draw the game window
+        def draw_window(notes, checkers, hits, hs):
+            screen.fill(TEEL)
 
-    # get the game's start time
-    startTime = pygame.time.get_ticks()
+            for checker in checkers:
+                checker.draw()
 
-    # list of the generated notes appearing
-    allNotes = []
+            for note in notes:
+                note.draw()  # draw each
 
-    points = 0.0  # counter for notes hit at the right time
-    musicPlaying = False  # music player boolean
-    pos = 1  # counter used to run through the .txt's songNotes list
-    running = True
-    while running:  # main game loop
-        clock.tick(FPS)
+            # display user's current score
+            score = PIXEL_FONT_NORMAL.render("{}".format(hits), True, WHITE, BLACK)
+            screen.blit(score, score.get_rect(center=(15 * WIDTH / 16, HEIGHT / 16)))
 
-        currentTime = pygame.time.get_ticks()
-        elapsed = currentTime - startTime  # elapsed run-time
+            # display the all-time highscore and the corresponding username
+            highscore = PIXEL_FONT_NORMAL.render("{} - {}".format(hs[0], hs[1]), True, WHITE, BLACK)
+            screen.blit(highscore, highscore.get_rect(center=(WIDTH / 2, 15 * HEIGHT / 16)))
 
-        # play the music when the first "log" in the file is passed
-        if elapsed >= songNotes[0][1] + 300 and not musicPlaying:
-            pygame.mixer.music.play(-1)
-            musicPlaying = True
+            # display text overtop of screen and pause movement
+            if paused:
+                pygame.mixer.music.pause()
+                pausedPrompt = PIXEL_FONT_LARGE.render("GAME PAUSED", True, BLACK)
+                screen.blit(pausedPrompt, pausedPrompt.get_rect(center=(WIDTH / 2, 2 * HEIGHT / 5)))
 
-        # check if the position is at the last "log," then end the program after it is passed
-        if pos == len(songNotes) - 1:
-            if elapsed >= songNotes[0][1] + songNotes[-1][1]:
-                running = False
-        # spawn a note in time to hit the checker at the right time
-        # music start time plus note occurrence after start time minus the time it takes for note to fall
-        elif elapsed >= songNotes[0][1] + songNotes[pos][1] - Note("green").get_fall_time(checkHeight):
-            if pos == len(songNotes) - 1:  # the last position will signal the end of the song, ending game
-                running = False
+            pygame.display.update()
 
-            # spawn a note corresponding to the "fret" pressed
-            if songNotes[pos][0] == "a":
-                allNotes.append(Note("green"))
-            elif songNotes[pos][0] == "s":
-                allNotes.append(Note("red"))
-            elif songNotes[pos][0] == "d":
-                allNotes.append(Note("yellow"))
-            elif songNotes[pos][0] == "f":
-                allNotes.append(Note("blue"))
-            elif songNotes[pos][0] == "space":
-                allNotes.append(Note("orange"))
-            pos += 1
+        # use the imported function to read the selected song and put the notes and times into a list
+        songNotes = song_reader("song txts", song)
+        # use the same function to get a list of the high scores for the current song
+        highScores = song_reader("highscores", song)
+        if len(highScores) > 0:
+            highScores.sort(key=lambda x: x[1], reverse=True)
+            highScore = highScores[0]
+        else:
+            highScore = ["CPV", 0.0]
 
-        for event in pygame.event.get():  # to exit
-            if event.type == pygame.QUIT or (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE):
-                pygame.quit()
-                exit()
-            # get the input that happens and check if it's at the right time to 'hit' a note
-            elif event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_a:
-                    print("a tapped")
-                    if len(allNotes) > 0:  # start running as long as there are notes on screen
-                        noteIsHit, hitNotePos = checkerNotes[0].collide_check(allNotes)
-                        # check if a note hits the box at when right button is pressed
-                        if noteIsHit:
-                            points += 1
-                            allNotes.pop(hitNotePos)  # remove the detected hit note
+        # set up the music
+        pygame.mixer.music.load("songs/{}.mp3".format(song))
+
+        checkerNotes = [NoteChecker("green"),
+                        NoteChecker("red"),
+                        NoteChecker("yellow"),
+                        NoteChecker("blue"),
+                        NoteChecker("orange")]
+        checkHeight = checkerNotes[0].y
+
+        # get the game's start time
+        startTime = pygame.time.get_ticks()
+
+        # list of the generated notes appearing
+        allNotes = []
+
+        paused = False  # use for pausing the screen
+        points = 0.0  # counter for notes hit at the right time
+        musicPlaying = False  # music player boolean
+        pos = 1  # counter used to run through the .txt's songNotes list
+        gameRunning = True
+        while gameRunning:  # main game loop
+            clock.tick(FPS)
+
+            currentTime = pygame.time.get_ticks()
+            elapsed = currentTime - startTime  # elapsed run-time
+
+            # play the music when the first "log" in the file is passed
+            if elapsed >= songNotes[0][1] + 300 and not musicPlaying:
+                pygame.mixer.music.play()
+                musicPlaying = True
+
+            # check if the position is at the last "log," then end the program after it is passed
+            if pos == len(songNotes) - 1:
+                if elapsed >= songNotes[0][1] + songNotes[-1][1]:
+                    gameRunning = False
+                    pygame.mixer.music.stop()
+
+            # spawn a note in time to hit the checker at the right time
+            # music start time plus note occurrence after start time minus the time it takes for note to fall
+            elif elapsed >= songNotes[0][1] + songNotes[pos][1] - Note("green").get_fall_time(checkHeight):
+                if pos == len(songNotes) - 1:  # the last position will signal the end of the song, ending game
+                    gameRunning = False
+                    pygame.mixer.music.stop()
+
+                # spawn a note corresponding to the "fret" pressed
+                if songNotes[pos][0] == "a":
+                    allNotes.append(Note("green"))
+                elif songNotes[pos][0] == "s":
+                    allNotes.append(Note("red"))
+                elif songNotes[pos][0] == "d":
+                    allNotes.append(Note("yellow"))
+                elif songNotes[pos][0] == "f":
+                    allNotes.append(Note("blue"))
+                elif songNotes[pos][0] == "space":
+                    allNotes.append(Note("orange"))
+                pos += 1
+
+            for event in pygame.event.get():  # to exit
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                    exit()
+                # get the input that happens and check if it's at the right time to 'hit' a note
+                elif event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_ESCAPE:
+                        if not paused:
+                            paused = True
+                            pygame.mixer.music.pause()
                         else:
-                            points -= 0.5
+                            paused = False
+                            pygame.mixer.music.play()
 
-                elif event.key == pygame.K_s:
-                    print("s tapped")
-                    if len(allNotes) > 0:
-                        noteIsHit, hitNotePos = checkerNotes[1].collide_check(allNotes)
-                        # check if a note hits the box at when right button is pressed
-                        if noteIsHit:
-                            points += 1
-                            allNotes.pop(hitNotePos)  # remove the detected hit note
-                        else:
-                            points -= 0.5
+                    if not paused:  # only look for input when the game is not paused
+                        if event.key == pygame.K_a:
+                            print("a tapped")
+                            if len(allNotes) > 0:  # start running as long as there are notes on screen
+                                noteIsHit, hitNotePos = checkerNotes[0].collide_check(allNotes)
+                                # check if a note hits the box at when right button is pressed
+                                if noteIsHit:
+                                    points += 1
+                                    allNotes.pop(hitNotePos)  # remove the detected hit note
+                                else:
+                                    points -= 0.5
 
-                elif event.key == pygame.K_d:
-                    print("d tapped")
-                    if len(allNotes) > 0:
-                        noteIsHit, hitNotePos = checkerNotes[2].collide_check(allNotes)
-                        # check if a note hits the box at when right button is pressed
-                        if noteIsHit:
-                            points += 1
-                            allNotes.pop(hitNotePos)  # remove the detected hit note
-                        else:
-                            points -= 0.5
+                        elif event.key == pygame.K_s:
+                            print("s tapped")
+                            if len(allNotes) > 0:
+                                noteIsHit, hitNotePos = checkerNotes[1].collide_check(allNotes)
+                                # check if a note hits the box at when right button is pressed
+                                if noteIsHit:
+                                    points += 1
+                                    allNotes.pop(hitNotePos)  # remove the detected hit note
+                                else:
+                                    points -= 0.5
 
-                elif event.key == pygame.K_f:
-                    print("f tapped")
-                    if len(allNotes) > 0:
-                        noteIsHit, hitNotePos = checkerNotes[3].collide_check(allNotes)
-                        # check if a note hits the box at when right button is pressed
-                        if noteIsHit:
-                            points += 1
-                            allNotes.pop(hitNotePos)  # remove the detected hit note
-                        else:
-                            points -= 0.5
+                        elif event.key == pygame.K_d:
+                            print("d tapped")
+                            if len(allNotes) > 0:
+                                noteIsHit, hitNotePos = checkerNotes[2].collide_check(allNotes)
+                                # check if a note hits the box at when right button is pressed
+                                if noteIsHit:
+                                    points += 1
+                                    allNotes.pop(hitNotePos)  # remove the detected hit note
+                                else:
+                                    points -= 0.5
 
-                elif event.key == pygame.K_SPACE:
-                    print("space tapped")
-                    if len(allNotes) > 0:
-                        noteIsHit, hitNotePos = checkerNotes[4].collide_check(allNotes)
-                        # check if a note hits the box at when right button is pressed
-                        if noteIsHit:
-                            points += 1
-                            allNotes.pop(hitNotePos)  # remove the detected hit note
-                        else:
-                            points -= 0.5
+                        elif event.key == pygame.K_f:
+                            print("f tapped")
+                            if len(allNotes) > 0:
+                                noteIsHit, hitNotePos = checkerNotes[3].collide_check(allNotes)
+                                # check if a note hits the box at when right button is pressed
+                                if noteIsHit:
+                                    points += 1
+                                    allNotes.pop(hitNotePos)  # remove the detected hit note
+                                else:
+                                    points -= 0.5
 
-        for note in allNotes:
-            note.move()
+                        elif event.key == pygame.K_SPACE:
+                            print("space tapped")
+                            if len(allNotes) > 0:
+                                noteIsHit, hitNotePos = checkerNotes[4].collide_check(allNotes)
+                                # check if a note hits the box at when right button is pressed
+                                if noteIsHit:
+                                    points += 1
+                                    allNotes.pop(hitNotePos)  # remove the detected hit note
+                                else:
+                                    points -= 0.5
 
-        # remove the first fallen note if it passes the checker's hitbox
-        if len(allNotes) > 0 and allNotes[0].rect.top > checkerNotes[0].rect.bottom:
-            allNotes.pop(0)
+            for note in allNotes:
+                note.move(paused)
 
-        draw_window(allNotes, checkerNotes, points, highScore)
-        pygame.display.set_caption("{} - {}".format(song, elapsed/1000))
+            # remove the first fallen note if it passes the checker's hitbox
+            if len(allNotes) > 0 and allNotes[0].rect.top > checkerNotes[0].rect.bottom:
+                allNotes.pop(0)
 
-    # enter the user's highScore into the highscores text files
-    highscores = open(os.path.join("highscores", "{}.txt".format(song)), "a")
-    highscores.write("{} {}\n".format(username, points))
-    highscores.close()
-    print("{} {}".format(username, points))
+            draw_window(allNotes, checkerNotes, points, highScore)
+            pygame.display.set_caption("{} - {}".format(song, elapsed / 1000))
 
-    return points, highScore  # return the user's points, and the all-time high score
+        # enter the user's highScore into the highscores text files
+        highscores = open(os.path.join("highscores", "{}.txt".format(song)), "a")
+        highscores.write("{} {}\n".format(username, points))
+        highscores.close()
+        print("{} {}".format(username, points))
 
-
-# points, highest = game()  # use the game to get the final number of points and the highest score to compare
-
-
-# have an end-screen with the user's results, and ask to play the game again.
-def end_screen():
-    # draw window function
-    def draw_window(buttons):
-        screen.fill(BLUE)
-
-        for button in buttons:
-            button.draw()
-            button.update()
-
-        pygame.display.update()
-
-    buttons = []
-    buttons.append(SongButton("Would you like to play again?", WIDTH/2, 2*HEIGHT/3))
-
-    selection = ""
-    running = True
-    while running:
-        clock.tick(FPS)
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT or (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE):
-                pygame.quit()
-                exit()
-            elif event.type == pygame.MOUSEBUTTONDOWN:
-                # when mouse button is pressed, check if it collides with a song, then return that song as selected
-                for button in buttons:
-                    if button.rect.collidepoint(pygame.mouse.get_pos()):
-                        return selection
-
-        draw_window(buttons)  # draw the screen
+        return points, highScore  # return the user's points, and the all-time high score
 
 
-end_selection = end_screen()
+    points, highest = game()  # use the game to get the final number of points and the highest score to compare
+
+    # have an end-screen with the user's results, and ask to play the game again.
+    def end_screen():
+        # draw window function
+        def draw_window(buttons, prompt):
+            screen.fill(BLUE)
+
+            promptRect = prompt.get_rect(center=(WIDTH / 2, HEIGHT / 2))
+            screen.blit(prompt, promptRect)
+
+            for b in buttons:
+                b.draw()
+                b.update()
+
+            pygame.display.update()
+
+        endText = PIXEL_FONT_NORMAL.render("Would you like to play again?", True, WHITE)
+
+        buttons = [SongButton("Yes", 3 * WIDTH / 7, 2 * HEIGHT / 3),
+                   SongButton("No", 4 * WIDTH / 7, 2 * HEIGHT / 3)]
+
+        endRunning = True
+        while endRunning:
+            clock.tick(FPS)
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                    exit()
+                elif event.type == pygame.MOUSEBUTTONDOWN:
+                    # when mouse button is pressed, check if it collides with a song, then return that song as selected
+                    for button in buttons:
+                        if button.rect.collidepoint(pygame.mouse.get_pos()):
+                            return button.text
+
+            draw_window(buttons, endText)  # draw the screen
+
+
+    end_selection = end_screen()
+    if end_selection == "No":
+        pygame.quit()  # exit the game if they don't want to replay
+        exit()
