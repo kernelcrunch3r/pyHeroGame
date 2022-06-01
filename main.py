@@ -78,7 +78,7 @@ CHECKER_IMGS = [pygame.image.load(os.path.join("imgs", "green checker1.png")),
                 pygame.image.load(os.path.join("imgs", "yellow checker1.png")),
                 pygame.image.load(os.path.join("imgs", "blue checker1.png")),
                 pygame.image.load(os.path.join("imgs", "orange checker1.png"))]
-CHECKER_Y = HEIGHT - 50 - CHECKER_IMGS[0].get_height()  #
+CHECKER_Y = HEIGHT - 50 - CHECKER_IMGS[0].get_height()  # get the top position of the checker note
 
 
 # class for the image at the bottom of the screen used to "play" the note
@@ -276,7 +276,7 @@ def instructions():
                 running = False
 
 
-instructions()  # display the game instructions
+# instructions()  # display the game instructions
 
 
 # Function containing the code for the main gameplay
@@ -440,6 +440,42 @@ def game():
     highscores.close()
     print("{} {}".format(username, points))
 
+    return points, highScore  # return the user's points, and the all-time high score
 
-game()
 
+# points, highest = game()  # use the game to get the final number of points and the highest score to compare
+
+
+# have an end-screen with the user's results, and ask to play the game again.
+def end_screen():
+    # draw window function
+    def draw_window(buttons):
+        screen.fill(BLUE)
+
+        for button in buttons:
+            button.draw()
+            button.update()
+
+        pygame.display.update()
+
+    buttons = []
+    buttons.append(SongButton("Would you like to play again?", WIDTH/2, 2*HEIGHT/3))
+
+    selection = ""
+    running = True
+    while running:
+        clock.tick(FPS)
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT or (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE):
+                pygame.quit()
+                exit()
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                # when mouse button is pressed, check if it collides with a song, then return that song as selected
+                for button in buttons:
+                    if button.rect.collidepoint(pygame.mouse.get_pos()):
+                        return selection
+
+        draw_window(buttons)  # draw the screen
+
+
+end_selection = end_screen()
