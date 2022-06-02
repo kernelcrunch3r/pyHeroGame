@@ -16,9 +16,6 @@ TEEL = (51, 245, 255)
 BLACK = (0, 0, 0)
 LIGHT_GREY = (206, 206, 206)
 
-inactiveColor = WHITE
-activeColor = GREY
-
 PIXEL_FONT_LARGE = pygame.font.Font(os.path.join("fonts", "prstartk.ttf"), 24)
 PIXEL_FONT_NORMAL = pygame.font.Font(os.path.join("fonts", "prstartk.ttf"), 18)
 PIXEL_FONT_SMALL = pygame.font.Font(os.path.join("fonts", "prstartk.ttf"), 12)
@@ -187,9 +184,12 @@ username = name_select()  # call the username menu to get a username
 
 
 # a class used to create a button using the passed text
-class SongButton:
-    def __init__(self, text, x, y):
-        self.color = inactiveColor
+class Button:
+    def __init__(self, text, x, y, inactiveColor, activeColor):
+        self.inactiveColor = inactiveColor
+        self.activeColor = activeColor
+
+        self.color = self.inactiveColor
         self.x = x
         self.y = y
         self.text = text
@@ -202,12 +202,12 @@ class SongButton:
 
     def update(self):
         if self.rect.collidepoint(pygame.mouse.get_pos()):  # change color if the mouse hovers over the name
-            self.color = activeColor
+            self.color = self.activeColor
             # render the text again, potentially with new color
             self.textSurface = PIXEL_FONT_NORMAL.render(self.text, True, self.color)
 
-        elif self.color == activeColor:  # if the color is active, but mouse is moved off, change color back
-            self.color = inactiveColor
+        elif self.color == self.activeColor:  # if the color is active, but mouse is moved off, change color back
+            self.color = self.inactiveColor
             # render the text again, potentially with new color
             self.textSurface = PIXEL_FONT_NORMAL.render(self.text, True, self.color)
 
@@ -230,7 +230,7 @@ while running:
         for i in range(len(songNames)):  # go through the list and remove the .txt from end
             songNames[i] = songNames[i][:-4]
             # add the button object to the list of song title buttons
-            songButtons.append(SongButton(songNames[i], WIDTH / 2, HEIGHT * (i + 1) / (len(songNames) + 1)))
+            songButtons.append(Button(songNames[i], WIDTH / 2, HEIGHT * (i + 1) / (len(songNames) + 1), WHITE, GREY))
 
         running = True
         while running:
@@ -308,6 +308,9 @@ while running:
                 pausedPrompt = PIXEL_FONT_LARGE.render("GAME PAUSED", True, BLACK)
                 screen.blit(pausedPrompt, pausedPrompt.get_rect(center=(WIDTH / 2, 2 * HEIGHT / 5)))
 
+                newSongButton.update()
+                newSongButton.draw()
+
             pygame.display.update()
 
         # use the imported function to read the selected song and put the notes and times into a list
@@ -336,34 +339,41 @@ while running:
         # list of the generated notes appearing
         allNotes = []
 
+        # object for the button to select a different song (in pause menu)
+        newSongButton = Button("Click to select different song.", WIDTH / 2, HEIGHT / 2, BLACK, GREY)
+
         paused = False  # use for pausing the screen
+        pausedStarts = []  # use to keep track of the times when paused
+        pausedTime = 0  # use for total time paused
+
+        newSong = False  # used in pause menu if they want to select a new song
         points = 0.0  # counter for notes hit at the right time
         musicPlaying = False  # music player boolean
         pos = 1  # counter used to run through the .txt's songNotes list
         gameRunning = True
-        while gameRunning:  # main game loop
+        while gameRunning and not newSong:  # main game loop
             clock.tick(FPS)
 
             currentTime = pygame.time.get_ticks()
             elapsed = currentTime - startTime  # elapsed run-time
 
             # play the music when the first "log" in the file is passed
-            if elapsed >= songNotes[0][1] + 300 and not musicPlaying:
+            if elapsed >= songNotes[0][1] + 200 + pausedTime and not musicPlaying and not paused:
                 pygame.mixer.music.play()
                 musicPlaying = True
 
             # check if the position is at the last "log," then end the program after it is passed
             if pos == len(songNotes) - 1:
-                if elapsed >= songNotes[0][1] + songNotes[-1][1]:
+                if elapsed >= songNotes[0][1] + songNotes[-1][1] + pausedTime:
                     gameRunning = False
                     pygame.mixer.music.stop()
 
             # spawn a note in time to hit the checker at the right time
-            # music start time plus note occurrence after start time minus the time it takes for note to fall
-            elif elapsed >= songNotes[0][1] + songNotes[pos][1] - Note("green").get_fall_time(checkHeight):
-                if pos == len(songNotes) - 1:  # the last position will signal the end of the song, ending game
+            # music start time plus note occurrence after start time minus the time it takes for note to fall plus total paused times
+            elif elapsed >= songNotes[0][1] + songNotes[pos][1] - Note("green").get_fall_time(checkHeight) + pausedTime and not paused:
+                '''if pos == len(songNotes) - 1:  # the last position will signal the end of the song, ending game
                     gameRunning = False
-                    pygame.mixer.music.stop()
+                    pygame.mixer.music.stop()'''
 
                 # spawn a note corresponding to the "fret" pressed
                 if songNotes[pos][0] == "a":
@@ -388,9 +398,11 @@ while running:
                         if not paused:
                             paused = True
                             pygame.mixer.music.pause()
+                            pausedStarts.append(elapsed)
                         else:
                             paused = False
-                            pygame.mixer.music.play()
+                            pygame.mixer.music.unpause()
+                            pausedTime += (elapsed - pausedStarts[-1])
 
                     if not paused:  # only look for input when the game is not paused
                         if event.key == pygame.K_a:
@@ -448,6 +460,10 @@ while running:
                                 else:
                                     points -= 0.5
 
+                elif event.type == pygame.MOUSEBUTTONDOWN:
+                    if newSongButton.rect.collidepoint(pygame.mouse.get_pos()):
+                        newSong = True
+
             for note in allNotes:
                 note.move(paused)
 
@@ -464,10 +480,10 @@ while running:
         highscores.close()
         print("{} {}".format(username, points))
 
-        return points, highScore  # return the user's points, and the all-time high score
+        return points, highScore, newSong  # return the user's points, and the all-time high score, and newSong state
 
 
-    points, highest = game()  # use the game to get the final number of points and the highest score to compare
+    points, highest, newSong = game()  # use the game to get the final number of points and the highest score to compare
 
     # have an end-screen with the user's results, and ask to play the game again.
     def end_screen():
@@ -486,8 +502,8 @@ while running:
 
         endText = PIXEL_FONT_NORMAL.render("Would you like to play again?", True, WHITE)
 
-        buttons = [SongButton("Yes", 3 * WIDTH / 7, 2 * HEIGHT / 3),
-                   SongButton("No", 4 * WIDTH / 7, 2 * HEIGHT / 3)]
+        buttons = [Button("Yes", 3 * WIDTH / 7, 2 * HEIGHT / 3, WHITE, GREY),
+                   Button("No", 4 * WIDTH / 7, 2 * HEIGHT / 3, WHITE, GREY)]
 
         endRunning = True
         while endRunning:
@@ -497,15 +513,14 @@ while running:
                     pygame.quit()
                     exit()
                 elif event.type == pygame.MOUSEBUTTONDOWN:
-                    # when mouse button is pressed, check if it collides with a song, then return that song as selected
                     for button in buttons:
                         if button.rect.collidepoint(pygame.mouse.get_pos()):
                             return button.text
 
             draw_window(buttons, endText)  # draw the screen
 
-
-    end_selection = end_screen()
-    if end_selection == "No":
-        pygame.quit()  # exit the game if they don't want to replay
-        exit()
+    if not newSong:  # new song would mean they exited the game, so no end screen
+        end_selection = end_screen()
+        if end_selection == "No":
+            pygame.quit()  # exit the game if they don't want to replay
+            exit()
