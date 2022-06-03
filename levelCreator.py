@@ -8,7 +8,9 @@ This file is to be used to create song txts in
 
 name = input("Song: ")  # get the song choice
 
-speed = input("What speed is the song being made at from the original? (1 = original): ")
+noteSpeed = input("Note falling speed: ")  # get the speed at which the notes should fall (changeable)
+
+songSpeed = input("What speed is the song being made at from the original? (1 = original): ")
 
 addTime = input("What time in the song is being started at?: ")  # usually 0, but maybe further if I want to redo a part
 
@@ -20,7 +22,9 @@ print(startTime)
 level = open(os.path.join("song txts", "{}.txt".format(name)), "w")  # create a new file for the song and open it
 highScores = open(os.path.join("highscores", "{}.txt".format(name)), "a")
 
-pressed1 = False  # use to individually make sure a key isnt held
+level.writelines("speed {}\n".format(noteSpeed))
+
+pressed1 = False  # use to individually make sure a key isn't held
 pressed2 = False
 pressed3 = False
 pressed4 = False
@@ -29,7 +33,7 @@ tPressed = False
 while True:
     clock.tick(30)
     currentTime = pygame.time.get_ticks()
-    elapsed = round((currentTime - startTime) * float(speed) + float(addTime))
+    elapsed = round((currentTime - startTime) * float(songSpeed) + float(addTime))
 
     if keyboard.is_pressed("t"):
         if not tPressed:
@@ -86,3 +90,4 @@ while True:
         break
 
 level.close()
+highScores.close()
