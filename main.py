@@ -20,7 +20,7 @@ PIXEL_FONT_LARGE = pygame.font.Font(os.path.join("fonts", "prstartk.ttf"), 24)
 PIXEL_FONT_NORMAL = pygame.font.Font(os.path.join("fonts", "prstartk.ttf"), 18)
 PIXEL_FONT_SMALL = pygame.font.Font(os.path.join("fonts", "prstartk.ttf"), 12)
 
-WIDTH, HEIGHT = 900, 600
+WIDTH, HEIGHT = 1000, 700
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 # screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
 pygame.display.set_caption("pyHero")  # window title
@@ -44,8 +44,8 @@ CHECKER_Y = HEIGHT - 50 - CHECKER_IMGS[0].get_height()  # get the top position o
 
 # class used to spawn a note corresponding to the passed color
 class Note:
-    def __init__(self, color):
-        self.VEL = 7.5
+    def __init__(self, color, speed):
+        self.VEL = speed
         self.y = 0
         self.color = color
 
@@ -330,6 +330,9 @@ while running:
 
             # use the imported function to read the selected song and put the notes and times into a list
             songNotes = song_reader("song txts", song)
+            noteSpeed = float(songNotes[0][1])  # get the speed at which the notes fall
+            songNotes.pop(0)
+
             # use the same function to get a list of the high scores for the current song
             highScores = song_reader("highscores", song)
             if len(highScores) > 0:
@@ -385,19 +388,19 @@ while running:
 
                 # spawn a note in time to hit the checker at the right time
                 # music start time plus note occurrence after start time minus the time it takes for note to fall plus total paused times
-                elif elapsed >= songNotes[0][1] + songNotes[pos][1] - Note("green").get_fall_time(checkHeight) + pausedTime and not paused:
+                elif elapsed >= songNotes[0][1] + songNotes[pos][1] - Note("green", noteSpeed).get_fall_time(checkHeight) + pausedTime and not paused:
 
                     # spawn a note corresponding to the "fret" pressed
                     if songNotes[pos][0] == "a":
-                        allNotes.append(Note("green"))
+                        allNotes.append(Note("green", noteSpeed))
                     elif songNotes[pos][0] == "s":
-                        allNotes.append(Note("red"))
+                        allNotes.append(Note("red", noteSpeed))
                     elif songNotes[pos][0] == "d":
-                        allNotes.append(Note("yellow"))
+                        allNotes.append(Note("yellow", noteSpeed))
                     elif songNotes[pos][0] == "f":
-                        allNotes.append(Note("blue"))
+                        allNotes.append(Note("blue", noteSpeed))
                     elif songNotes[pos][0] == "space":
-                        allNotes.append(Note("orange"))
+                        allNotes.append(Note("orange", noteSpeed))
                     pos += 1
 
                 for event in pygame.event.get():  # to exit
