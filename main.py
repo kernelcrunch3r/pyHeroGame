@@ -20,7 +20,7 @@ PIXEL_FONT_LARGE = pygame.font.Font(os.path.join("fonts", "prstartk.ttf"), 24)
 PIXEL_FONT_NORMAL = pygame.font.Font(os.path.join("fonts", "prstartk.ttf"), 18)
 PIXEL_FONT_SMALL = pygame.font.Font(os.path.join("fonts", "prstartk.ttf"), 12)
 
-WIDTH, HEIGHT = 800, 600
+WIDTH, HEIGHT = 900, 600
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 # screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
 pygame.display.set_caption("pyHero")  # window title
