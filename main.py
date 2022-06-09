@@ -500,7 +500,6 @@ while running:
         if not backToName and not backToSongs:  # they want to go back otherwise
             points, highest, backToSongs = game()  # use the game to get the final number of points and the highest score to compare
 
-
         # have an end-screen with the user's results, and ask to play the game again.
         def end_screen():
             # draw window function
