@@ -490,7 +490,8 @@ while running:
                 pygame.display.set_caption("{} - {}".format(song, elapsed / 1000))  # program title is song name, elapsed time
 
             # enter the user's highScore into the highscores text files
-            highscores = open(os.path.join("highscores", "{}.txt".format(song)), "a")
+            highscores = open(os.
+                            path.join("highscores", "{}.txt".format(song)), "a")
             highscores.write("{} {}\n".format(username, points))
             highscores.close()
             print("{} {}".format(username, points))

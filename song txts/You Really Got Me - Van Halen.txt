@@ -1,3 +1,4 @@
+speed 7.5
 t 3000
 space 279
 f 394
