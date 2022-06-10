@@ -269,10 +269,9 @@ while running:
             def draw_window():
                 screen.fill(BLUE)
 
-                instructions = []
-                instructions.append(TextBox("Moving from left to right, the", WIDTH / 2, 7 * HEIGHT / 15, GREY, PIXEL_FONT_NORMAL))
-                instructions.append(TextBox("controls are: [a], [s], [d], [f], [space]", WIDTH / 2, 8 * HEIGHT / 15, GREY, PIXEL_FONT_NORMAL))
-                for instruction in instructions:
+                instructionTexts = [TextBox("Moving from left to right, the", WIDTH / 2, 7 * HEIGHT / 15, GREY, PIXEL_FONT_NORMAL),
+                                    TextBox("controls are: [a], [s], [d], [f], [space]", WIDTH / 2, 8 * HEIGHT / 15, GREY, PIXEL_FONT_NORMAL)]
+                for instruction in instructionTexts:
                     instruction.draw()
 
                 pygame.display.update()
@@ -490,16 +489,15 @@ while running:
                 pygame.display.set_caption("{} - {}".format(song, elapsed / 1000))  # program title is song name, elapsed time
 
             # enter the user's highScore into the highscores text files
-            highscores = open(os.
-                            path.join("highscores", "{}.txt".format(song)), "a")
+            highscores = open(os.path.join("highscores", "{}.txt".format(song)), "a")
             highscores.write("{} {}\n".format(username, points))
             highscores.close()
             print("{} {}".format(username, points))
 
-            return points, highScore, newSong  # return the user's points, and the all-time high score, and newSong state
+            return points, points * 100 / (len(songNotes) - 2), highScore, newSong  # return the user's points, and the all-time high score, and newSong state
 
         if not backToName and not backToSongs:  # they want to go back otherwise
-            points, highest, backToSongs = game()  # use the game to get the final number of points and the highest score to compare
+            points, percent, highest, backToSongs = game()  # use the game to get the final number of points and the highest score to compare
 
         # have an end-screen with the user's results, and ask to play the game again.
         def end_screen():
@@ -507,11 +505,11 @@ while running:
             def draw_window():
                 screen.fill(BLUE)
 
+                score = TextBox("{} points -- {:3f}%".format(points, percent), WIDTH / 2, HEIGHT / 4, WHITE, PIXEL_FONT_LARGE)
+                score.draw()
+
                 endPrompt = TextBox("Would you like to play again?", WIDTH / 2, HEIGHT / 2, WHITE, PIXEL_FONT_NORMAL)
                 endPrompt.draw()
-
-                score = TextBox("Score: {} points".format(points), WIDTH / 2, HEIGHT / 4, WHITE, PIXEL_FONT_LARGE)
-                score.draw()
 
                 for b in buttons:
                     b.draw()
