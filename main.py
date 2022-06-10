@@ -26,6 +26,7 @@ screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("pyHero")  # window title
 # WIDTH, HEIGHT  = pygame.display.get_surface().get_size()
 
+BACKGROUND = pygame.image.load(os.path.join("imgs", "grey background.png"))
 
 # array of the note images (different colors, just select from array)
 NOTE_IMGS = [pygame.image.load(os.path.join("imgs", "green note1.png")),
@@ -40,6 +41,33 @@ CHECKER_IMGS = [pygame.image.load(os.path.join("imgs", "green checker1.png")),
                 pygame.image.load(os.path.join("imgs", "blue checker1.png")),
                 pygame.image.load(os.path.join("imgs", "orange checker1.png"))]
 CHECKER_Y = HEIGHT - 50 - CHECKER_IMGS[0].get_height()  # get the top position of the checker note
+
+
+# class for the drawing the background, scrolling, etc.
+class Background:
+    def __init__(self, pic, nSpeed):
+        self.image = pic
+        # coords for bottom of the image
+        self.x = WIDTH / 2
+        self.y = HEIGHT / 2
+        self.rect = self.image.get_rect(center=(self.x, self.y))
+        self.rect.bottom = HEIGHT
+        self.rect2 = self.image.get_rect(center=(self.x, self.y))
+        self.rect2.top = self.rect.bottom
+
+        self.vel = nSpeed * 0.3
+
+    def update(self):
+        self.rect.top -= self.vel
+        self.rect2.top -= self.vel
+        # check if the background is going off screen
+        if self.rect2.bottom <= HEIGHT:
+            self.rect.top = self.rect2.bottom
+        if self.rect.bottom <= HEIGHT:
+            self.rect2.top = self.rect.bottom
+
+        screen.blit(self.image, self.rect)
+        screen.blit(self.image, self.rect2)
 
 
 # class used to spawn a note corresponding to the passed color
@@ -298,11 +326,13 @@ while running:
         points = 0.0  # user's points
         highest = []  # highest score ever
         newSong = False  # used to let program know if user wants a new song
+
         # Function containing the code for the main gameplay
         def game():
             # local function used to draw the game window
-            def draw_window(notes, checkers, hits, hs):
-                screen.fill(TEEL)
+            def draw_window(notes, checkers, hits, hs, bg):
+                if not paused:
+                    bg.update()  # update the background
 
                 for checker in checkers:
                     checker.draw()
@@ -349,6 +379,9 @@ while running:
                             NoteChecker("blue"),
                             NoteChecker("orange")]
             checkHeight = checkerNotes[0].y
+
+            # create a background object
+            background = Background(BACKGROUND, noteSpeed)
 
             # get the game's start time
             startTime = pygame.time.get_ticks()
@@ -483,9 +516,10 @@ while running:
 
                 # remove the first fallen note if it passes the checker's hitbox
                 if len(allNotes) > 0 and allNotes[0].rect.top > checkerNotes[0].rect.bottom:
+                    points -= 0.5  # remove a half-point if missed note
                     allNotes.pop(0)
 
-                draw_window(allNotes, checkerNotes, points, highScore)
+                draw_window(allNotes, checkerNotes, points, highScore, background)
                 pygame.display.set_caption("{} - {}".format(song, elapsed / 1000))  # program title is song name, elapsed time
 
             # enter the user's highScore into the highscores text files
@@ -505,7 +539,7 @@ while running:
             def draw_window():
                 screen.fill(BLUE)
 
-                score = TextBox("{} points -- {:3f}%".format(points, percent), WIDTH / 2, HEIGHT / 4, WHITE, PIXEL_FONT_LARGE)
+                score = TextBox("{} points -- {}%".format(points, round(percent)), WIDTH / 2, HEIGHT / 4, WHITE, PIXEL_FONT_LARGE)
                 score.draw()
 
                 endPrompt = TextBox("Would you like to play again?", WIDTH / 2, HEIGHT / 2, WHITE, PIXEL_FONT_NORMAL)
