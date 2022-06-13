@@ -17,7 +17,7 @@ addTime = input("What time in the song is being started at?: ")  # usually 0, bu
 clock = pygame.time.Clock()
 startTime = pygame.time.get_ticks()  # get the starting time
 
-print(startTime)
+# print(startTime)
 
 level = open(os.path.join("song txts", "{}.txt".format(name)), "w")  # create a new file for the song and open it
 highScores = open(os.path.join("highscores", "{}.txt".format(name)), "a")
@@ -38,7 +38,7 @@ while True:
     if keyboard.is_pressed("t"):
         if not tPressed:
             if addTime == "0":
-                # I'll press t to represent time to start the music, just for simplicity looking at files
+                # I'll press t to represent time to start the music
                 level.writelines("t {}\n".format(3000))  # start music after 3 seconds
             else:
                 level.writelines("t {}\n".format(addTime))

@@ -26,7 +26,7 @@ screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("pyHero")  # window title
 # WIDTH, HEIGHT  = pygame.display.get_surface().get_size()
 
-BACKGROUND = pygame.image.load(os.path.join("imgs", "grey background.png"))
+GREY_BACKGROUND = pygame.image.load(os.path.join("imgs", "grey background.png"))
 
 # array of the note images (different colors, just select from array)
 NOTE_IMGS = [pygame.image.load(os.path.join("imgs", "green note1.png")),
@@ -158,30 +158,35 @@ class NoteChecker:
             self.x = round(WIDTH / 6)
             self.y = CHECKER_Y
             self.image = CHECKER_IMGS[0]
+            self.key = "A"
         elif color == "red":
             self.x = round(WIDTH / 3)
             self.y = CHECKER_Y
             self.image = CHECKER_IMGS[1]
+            self.key = "S"
         elif color == "yellow":
             self.x = round(WIDTH / 2)
             self.y = CHECKER_Y
             self.image = CHECKER_IMGS[2]
+            self.key = "D"
         elif color == "blue":
             self.x = round(2 * WIDTH / 3)
             self.y = CHECKER_Y
             self.image = CHECKER_IMGS[3]
+            self.key = "F"
         elif color == "orange":
             self.x = round(5 * WIDTH / 6)
             self.y = CHECKER_Y
             self.image = CHECKER_IMGS[4]
-        elif color == "test":
-            self.x = 0
-            self.y = 0
-            self.image = CHECKER_IMGS[0]
+            self.key = "SPACE"
         self.rect = self.image.get_rect(center=(self.x, self.y))
+
+        self.textSurface = PIXEL_FONT_NORMAL.render(self.key, True, WHITE)
+        self.textRect = self.textSurface.get_rect(center=(self.x + 7, self.y+47))
 
     def draw(self):
         screen.blit(self.image, self.rect)
+        screen.blit(self.textSurface, self.textRect)
 
     def collide_check(self, notes):
         if len(notes) >= 4:  # try to check the first four notes for collisions
@@ -334,22 +339,21 @@ while running:
                 if not paused:
                     bg.update()  # update the background
 
-                for checker in checkers:
-                    checker.draw()
+                    for checker in checkers:
+                        checker.draw()
 
-                for note in notes:
-                    note.draw()  # draw each
+                    for note in notes:
+                        note.draw()  # draw each
 
-                # display user's current score
-                score = PIXEL_FONT_NORMAL.render("{}".format(hits), True, WHITE, BLACK)
-                screen.blit(score, score.get_rect(center=(15 * WIDTH / 16, HEIGHT / 16)))
-
-                # display the all-time highscore and the corresponding username
-                highscore = PIXEL_FONT_NORMAL.render("{} - {}".format(hs[0], hs[1]), True, WHITE, BLACK)
-                screen.blit(highscore, highscore.get_rect(center=(WIDTH / 2, 15 * HEIGHT / 16)))
+                    # display the all-time highscore and the corresponding username
+                    TextBox("Highscore", WIDTH / 8, HEIGHT / 16, LIGHT_GREY, PIXEL_FONT_NORMAL).draw()
+                    TextBox("{} - {}".format(hs[0], hs[1]), WIDTH / 8, HEIGHT / 8, WHITE, PIXEL_FONT_NORMAL).draw()
+                    # display user's current score
+                    TextBox("Current Score", 7 * WIDTH / 8, HEIGHT / 16, LIGHT_GREY, PIXEL_FONT_NORMAL).draw()
+                    TextBox("{}".format(hits), 7 * WIDTH / 8, HEIGHT / 8, WHITE, PIXEL_FONT_NORMAL).draw()
 
                 # display text overtop of screen and pause movement
-                if paused:
+                else:
                     pygame.mixer.music.pause()
                     pausedPrompt = TextBox("GAME PAUSED", WIDTH / 2, 2 * HEIGHT / 5, BLACK, PIXEL_FONT_LARGE)
                     pausedPrompt.draw()
@@ -381,7 +385,7 @@ while running:
             checkHeight = checkerNotes[0].y
 
             # create a background object
-            background = Background(BACKGROUND, noteSpeed)
+            background = Background(GREY_BACKGROUND, noteSpeed)
 
             # get the game's start time
             startTime = pygame.time.get_ticks()
@@ -433,7 +437,7 @@ while running:
                         allNotes.append(Note("blue", noteSpeed))
                     elif songNotes[pos][0] == "space":
                         allNotes.append(Note("orange", noteSpeed))
-                    pos += 1
+                    pos += 1  # move to next "note"
 
                 for event in pygame.event.get():  # to exit
                     if event.type == pygame.QUIT:
